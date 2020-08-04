@@ -6,11 +6,12 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v3.1": {
-      "SubSonic.Core.VisualStudio.Testing/1.0.0": {
+      "SubSonic.Core.VisualStudio.Testing/0.0.0-g6dce5bad38": {
         "dependencies": {
           "FluentAssertions": "5.10.3",
           "Microsoft.NET.Test.Sdk": "16.6.1",
           "NUnit3TestAdapter": "3.17.0",
+          "Nerdbank.GitVersioning": "3.2.31",
           "SubSonic.Core.Extensions": "1.0.0",
           "SubSonic.Core.Remoting": "1.0.0",
           "NUnit": "3.12.0"
@@ -485,6 +486,7 @@
           }
         }
       },
+      "Nerdbank.GitVersioning/3.2.31": {},
       "NETStandard.Library/2.0.0": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "2.1.2"
@@ -1079,7 +1081,7 @@
     }
   },
   "libraries": {
-    "SubSonic.Core.VisualStudio.Testing/1.0.0": {
+    "SubSonic.Core.VisualStudio.Testing/0.0.0-g6dce5bad38": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -1195,6 +1197,13 @@
       "sha512": "sha512-aMSE7fiIRWED8E11wl6rrFpgyRJBZHc1lSolK7qsoWd40GPsGCA46ENJN226qTIGf1L4uO1aHp0ISj6OXyP2+Q==",
       "path": "mono.texttemplating.roslyn/2.2.0-preview-0077-g00a6668806",
       "hashPath": "mono.texttemplating.roslyn.2.2.0-preview-0077-g00a6668806.nupkg.sha512"
+    },
+    "Nerdbank.GitVersioning/3.2.31": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-19grBnpqHLxViOt1cwE+cI+brQ2swdm4gfM97P+9KbbgWGfXtdy4EmpVAkUZ3MgntFYYbUvfldM4pUOmks5q0w==",
+      "path": "nerdbank.gitversioning/3.2.31",
+      "hashPath": "nerdbank.gitversioning.3.2.31.nupkg.sha512"
     },
     "NETStandard.Library/2.0.0": {
       "type": "package",

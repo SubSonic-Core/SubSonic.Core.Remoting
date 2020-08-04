@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
+namespace SubSonic.Core.Remoting {
     using System;
     
     
@@ -22,7 +22,7 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class RemotingResources {
+    public class RemotingResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,10 +36,10 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting.RemotingResources", typeof(RemotingResources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("SubSonic.Core.Remoting.RemotingResources", typeof(RemotingResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
         /// <summary>
         ///   Looks up a localized string similar to Remoting channel can not be secured: {0}.
         /// </summary>
-        internal static string CannotBeSecured {
+        public static string CannotBeSecured {
             get {
                 return ResourceManager.GetString("CannotBeSecured", resourceCulture);
             }
@@ -72,7 +72,7 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
         /// <summary>
         ///   Looks up a localized string similar to Can not create channel sink for remote url: {0}.
         /// </summary>
-        internal static string CannotCreateChannelSink {
+        public static string CannotCreateChannelSink {
             get {
                 return ResourceManager.GetString("CannotCreateChannelSink", resourceCulture);
             }
@@ -81,7 +81,7 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
         /// <summary>
         ///   Looks up a localized string similar to Remoting channel has already been registered: {0}.
         /// </summary>
-        internal static string ChannelNameAlreadyRegistered {
+        public static string ChannelNameAlreadyRegistered {
             get {
                 return ResourceManager.GetString("ChannelNameAlreadyRegistered", resourceCulture);
             }
@@ -90,7 +90,7 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
         /// <summary>
         ///   Looks up a localized string similar to Invalid url {0}.
         /// </summary>
-        internal static string InvalidUrl {
+        public static string InvalidUrl {
             get {
                 return ResourceManager.GetString("InvalidUrl", resourceCulture);
             }
@@ -99,7 +99,7 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
         /// <summary>
         ///   Looks up a localized string similar to Type is not remotable by reference: {0}.
         /// </summary>
-        internal static string NotRemotableByReference {
+        public static string NotRemotableByReference {
             get {
                 return ResourceManager.GetString("NotRemotableByReference", resourceCulture);
             }
@@ -108,7 +108,7 @@ namespace SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting {
         /// <summary>
         ///   Looks up a localized string similar to Uri already exists: {0}.
         /// </summary>
-        internal static string SetObjectUriForMarshal__UriExists {
+        public static string SetObjectUriForMarshal__UriExists {
             get {
                 return ResourceManager.GetString("SetObjectUriForMarshal__UriExists", resourceCulture);
             }

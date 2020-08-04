@@ -35,17 +35,17 @@ namespace SubSonic.Core.Remoting
                 properties[nameof(NamedPipeChannel<TransformationRunFactory>.ChannelName)] = TransformationRunFactory.TransformationRunFactoryPrefix;
 
                 ChannelServices.RegisterChannel(new NamedPipeChannel<TransformationRunFactory>(properties)).Should().BeTrue();
-            }).Should().Throw<SubSonicRemotingException>().WithMessage("Remoting channel has already been registered: TransformationRunFactoryService");
+            }).Should().Throw<SubSonicRemotingException>().WithMessage(RemotingResources.ChannelNameAlreadyRegistered.Format(TransformationRunFactory.TransformationRunFactoryPrefix));
         }
 
         [Test]
-        [TestCase(typeof(ProcessUtilities), "Type is not remotable by reference: SubSonic.Core.Utilities.ProcessUtilities")]
-        public void RemotingShouldThrowWhenTypeIsNotMarshalByReference(Type typeToProxy, string message)
+        [TestCase(typeof(ProcessUtilities))]
+        public void RemotingShouldThrowWhenTypeIsNotMarshalByReference(Type typeToProxy)
         {
             FluentActions.Invoking(async () =>
             {
                 await RemotingServices.ConnectAsync(typeToProxy, new Uri("ipc://unknown"));
-            }).Should().Throw<SubSonicRemotingException>().WithMessage(message);
+            }).Should().Throw<SubSonicRemotingException>().WithMessage(RemotingResources.NotRemotableByReference.Format(typeToProxy.FullName));
         }
 
         [Test]

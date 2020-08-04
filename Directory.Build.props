@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <PackageProjectUrl>https://github.com/mono/t4</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/SubSonic-Core</PackageProjectUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Authors>Kenneth Carter</Authors>
     <PackageTags></PackageTags>

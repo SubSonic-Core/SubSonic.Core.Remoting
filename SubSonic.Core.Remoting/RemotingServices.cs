@@ -56,7 +56,7 @@ namespace SubSonic.Core.Remoting
                 {
                     throw new ArgumentException(RemotingResources.InvalidUrl.Format(uri), nameof(uri));
                 }
-                identity = IdentityHolder.FindOrCreateIdentity(objectUri, uri);
+                identity = IdentityHolder.FindOrCreateIdentity(objectUri, uri, null);
 
                 SetChannelSink(identity, messageSink);
             }
@@ -71,7 +71,7 @@ namespace SubSonic.Core.Remoting
 
         private static object GetOrCreateProxy(Type classToProxy, Identity identity)
         {
-            object byRefObject = identity.ByRefObject ?? SetOrCreateProxy(identity, classToProxy);
+            object byRefObject = identity.ByRefObject ?? SetOrCreateProxy(identity, classToProxy, null);
             
             if (identity is ServerIdentity serverIdentity)
             {
@@ -86,7 +86,7 @@ namespace SubSonic.Core.Remoting
 
         private static MarshalByRefObject SetOrCreateProxy(Identity identity, Type classToProxy, object proxy)
         {
-            RealProxy realProxy 
+            RealProxy realProxy = null;
             throw new NotImplementedException();
         }
 

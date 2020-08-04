@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
 using System.Text;
@@ -12,6 +13,7 @@ namespace SubSonic.Core.Remoting
     /// <summary>
     /// Provides required functions and properties for the receiver channels.
     /// </summary>
+    [ComVisible(true)]
     public interface IChannelReceiver
         : IChannel
     {
@@ -44,6 +46,7 @@ namespace SubSonic.Core.Remoting
     /// <summary>
     /// Provides conduits for messages that cross process boundaries.
     /// </summary>
+    [ComVisible(true)]
     public interface IChannel
     {
         /// <summary>
@@ -72,6 +75,7 @@ namespace SubSonic.Core.Remoting
     /// <summary>
     /// Provides required functions and properties for the sender channels.
     /// </summary>
+    [ComVisible(true)]
     public interface IChannelSender
         : IChannel
     {
@@ -97,6 +101,7 @@ namespace SubSonic.Core.Remoting
     /// <summary>
     /// provides information that a named client will need
     /// </summary>
+    [ComVisible(true)]
     public interface INamedPipeChannelSender
         : IChannelSender
     {
@@ -107,6 +112,7 @@ namespace SubSonic.Core.Remoting
     /// <summary>
     /// Defines the interface for a message sink.
     /// </summary>
+    [ComVisible(true)]
     public interface IMessageSink
     {
         /// <summary>
@@ -134,6 +140,7 @@ namespace SubSonic.Core.Remoting
     /// <summary>
     /// Provides a way to control asynchronous messages after they have dispatched
     /// </summary>
+    [ComVisible(true)]
     public interface IMessageCtrl
     {
         /// <summary>
@@ -146,6 +153,7 @@ namespace SubSonic.Core.Remoting
     /// <summary>
     /// Contains communication data sent between cooperating message sinks.
     /// </summary>
+    [ComVisible(true)]
     public interface IMessage
     {
         /// <summary>
@@ -160,6 +168,7 @@ namespace SubSonic.Core.Remoting
     /// System.Runtime.Remoting.Channels.ISecurableChannel.IsSecured, which gets or sets
     /// a Boolean value that indicates whether the current channel is secure.
     /// </summary>
+    [ComVisible(true)]
     public interface ISecurableChannel
     {
         /// <summary>
@@ -168,26 +177,26 @@ namespace SubSonic.Core.Remoting
         /// <returns>A Boolean value that indicates whether the current channel is secure.</returns>
         bool IsSecured { get; set; }
     }
-
+    [ComVisible(true)]
     public interface IClientChannel
         : IChannelSender, IChannel, ISecurableChannel
     {
     }
-
+    [ComVisible(true)]
     public interface IServerChannel
         : IChannelReceiver, IChannel, ISecurableChannel
     {
         string PortName { get; }
         Uri GetChannelUri();
     }
-
+    [ComVisible(true)]
     public interface IChannelDataStore
     {
         Uri[] ChannelUris { [SecurityCritical] get; }
 
         object this[object key] { [SecurityCritical] get; [SecurityCritical] set; }
     }
-
+    [ComVisible(true)]
     public interface IClientChannelSinkProvider
     {
         [SecurityCritical]
@@ -195,7 +204,7 @@ namespace SubSonic.Core.Remoting
 
         IClientChannelSinkProvider Next { [SecurityCritical] get; [SecurityCritical] set; }
     }
-
+    [ComVisible(true)]
     public interface IClientChannelSink 
         : IChannelSinkBase
         , IMessageSink
@@ -211,12 +220,12 @@ namespace SubSonic.Core.Remoting
 
         IClientChannelSink NextChannelSink { [SecurityCritical] get; }
     }
-
+    [ComVisible(true)]
     public interface IChannelSinkBase
     {
         IDictionary Properties { [SecurityCritical] get; }
     }
-
+    [ComVisible(true)]
     public interface IClientChannelSinkStack : IClientResponseChannelSinkStack
     {
         [SecurityCritical]
@@ -224,7 +233,7 @@ namespace SubSonic.Core.Remoting
         [SecurityCritical]
         void Push(IClientChannelSink sink, object state);
     }
-
+    [ComVisible(true)]
     public interface IClientResponseChannelSinkStack
     {
         [SecurityCritical]
@@ -234,7 +243,7 @@ namespace SubSonic.Core.Remoting
         [SecurityCritical]
         void DispatchReplyMessage(IMessage msg);
     }
-
+    [ComVisible(true)]
     public interface ITransportHeaders
     {
         [SecurityCritical]
@@ -242,7 +251,7 @@ namespace SubSonic.Core.Remoting
 
         object this[object key] { [SecurityCritical] get; [SecurityCritical] set; }
     }
-
+    [ComVisible(true)]
     public interface IClientFormatterSink 
         : IMessageSink, IClientChannelSink, IChannelSinkBase
     {

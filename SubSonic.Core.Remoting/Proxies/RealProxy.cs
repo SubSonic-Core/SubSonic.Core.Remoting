@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Security;
+using System.Security.Permissions;
 using System.Text;
 
 namespace SubSonic.Core.Remoting.Proxies
 {
+    [SecurityCritical, ComVisible(true), SecurityPermission(SecurityAction.InheritanceDemand, Flags = SecurityPermissionFlag.Infrastructure)]
     public abstract class RealProxy
     {
         private object tp;
         private object identity;
         private MarshalByRefObject serverObject;
         private RealProxyFlags flags;
-        private static IntPtr _defaultStub = GetDefaultStub();
+        private static IntPtr _defaultStub = IntPtr.Zero;
         private static IntPtr _defaultStubValue = new IntPtr(-1);
         private static object _defaultStubData = _defaultStubValue;
 
         protected RealProxy()
         {
-
         }
 
         [SecurityCritical]

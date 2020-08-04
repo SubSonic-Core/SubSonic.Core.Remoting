@@ -43,7 +43,7 @@ namespace SubSonic.Core.Remoting
 
             if (identity == null)
             {
-                Uri objectUri = CreateChannelSink(uri, data, out IMessageSink messageSink);
+                string objectUri = CreateChannelSink(uri, data, out IMessageSink messageSink);
                 if (messageSink == null)
                 {
                     throw new SubSonicRemotingException(RemotingResources.CannotCreateChannelSink.Format(uri));
@@ -83,10 +83,9 @@ namespace SubSonic.Core.Remoting
         }
 
         [SecurityCritical]
-        private static Uri CreateChannelSink(Uri uri, object data, out IMessageSink messageSink)
+        private static string CreateChannelSink(Uri uri, object data, out IMessageSink messageSink)
         {
-            Uri objectURI = null;
-            messageSink = ChannelServices.CreateMessageSink(uri, data, out objectURI);
+            messageSink = ChannelServices.CreateMessageSink(uri, data, out string objectURI);
             //if (messageSink == null)
             //{
             //    object obj2 = s_delayLoadChannelLock;

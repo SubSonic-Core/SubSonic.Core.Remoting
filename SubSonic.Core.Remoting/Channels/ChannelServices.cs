@@ -1,13 +1,9 @@
-﻿using H.Pipes;
-using Mono.VisualStudio.TextTemplating;
-using SubSonic.Core.Remoting.Channels.Ipc;
-using SubSonic.Core.VisualStudio.Common;
+﻿using SubSonic.Core.Remoting.Channels.Ipc;
 using SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting;
 using System;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace SubSonic.Core.Remoting.Channels
 {
@@ -104,7 +100,7 @@ namespace SubSonic.Core.Remoting.Channels
             return success;
         }
 
-        internal static IMessageSink CreateMessageSink(Uri uri, object data, out Uri objectURI)
+        internal static IMessageSink CreateMessageSink(Uri uri, object data, out string objectURI)
         {
             IMessageSink messageSink = null;
             objectURI = null;

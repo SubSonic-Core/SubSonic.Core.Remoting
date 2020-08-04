@@ -1,20 +1,13 @@
-﻿using H.Pipes;
-using SubSonic.Core.VisualStudio.Common;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubSonic.Core.Remoting.Channels.Ipc
 {
     public class NamedPipeChannel<TMessageType>
         : IpcChannel
     {
-        private PipeClient<TMessageType> pipeClient;
+        //private PipeClient<TMessageType> pipeClient;
 
         public NamedPipeChannel(IDictionary properties)
             : base(properties)
@@ -68,10 +61,10 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
                 }
             }
 
-            pipeClient = new PipeClient<TMessageType>(ChannelName, reconnectionInterval: ReconnectionInterval,  formatter: new H.Formatters.BinaryFormatter())
-            {
-                AutoReconnect = AutoReconnect
-            };
+            //pipeClient = new PipeClient<TMessageType>(ChannelName, reconnectionInterval: ReconnectionInterval,  formatter: new H.Formatters.BinaryFormatter())
+            //{
+            //    AutoReconnect = AutoReconnect
+            //};
 
             return this;
         }
@@ -128,8 +121,8 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
         {
             if (disposing)
             {
-                pipeClient.Dispose();
-                pipeClient = null;
+                //pipeClient.Dispose();
+                //pipeClient = null;
             }
 
             base.Dispose(disposing);

@@ -2,6 +2,23 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SubSonic.Core.Extensions\SubSonic.Core.Extensions.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+		<PackageReference Include="Mono.TextTemplating" Version="2.2.0-preview-0077-g00a6668806" />
+		<PackageReference Include="Mono.TextTemplating.Roslyn" Version="2.2.0-preview-0077-g00a6668806" />
+		<PackageReference Include="Nerdbank.GitVersioning" Version="3.2.31">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 </Project>

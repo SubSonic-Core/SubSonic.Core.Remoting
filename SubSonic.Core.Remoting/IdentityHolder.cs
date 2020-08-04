@@ -48,7 +48,7 @@ namespace SubSonic.Core.Remoting
             return identity;
         }
         [SecurityCritical]
-        public static Identity FindOrCreateIdentity(Uri objectUri, Uri uri)
+        public static Identity FindOrCreateIdentity(string objectUri, Uri uri)
         {
             throw new NotImplementedException();
         }

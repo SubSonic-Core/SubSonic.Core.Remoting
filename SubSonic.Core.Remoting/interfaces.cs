@@ -202,4 +202,30 @@ namespace SubSonic.Core.Remoting
     {
         IDictionary Properties { [SecurityCritical] get; }
     }
+
+    public interface IClientChannelSinkStack : IClientResponseChannelSinkStack
+    {
+        [SecurityCritical]
+        object Pop(IClientChannelSink sink);
+        [SecurityCritical]
+        void Push(IClientChannelSink sink, object state);
+    }
+
+    public interface IClientResponseChannelSinkStack
+    {
+        [SecurityCritical]
+        void AsyncProcessResponse(ITransportHeaders headers, Stream stream);
+        [SecurityCritical]
+        void DispatchException(Exception e);
+        [SecurityCritical]
+        void DispatchReplyMessage(IMessage msg);
+    }
+
+    public interface ITransportHeaders
+    {
+        [SecurityCritical]
+        IEnumerator GetEnumerator();
+
+        object this[object key] { [SecurityCritical] get; [SecurityCritical] set; }
+    }
 }

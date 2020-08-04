@@ -80,7 +80,7 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
         //}
 
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.Infrastructure, Infrastructure = true)]
-        public IMessageSink CreateMessageSink(Uri url, object remoteChannelData, out Uri objectURI)
+        public IMessageSink CreateMessageSink(Uri url, object remoteChannelData, out string objectURI)
         {
             throw new NotImplementedException();
         }

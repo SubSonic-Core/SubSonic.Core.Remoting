@@ -2,17 +2,11 @@
 using Mono.VisualStudio.TextTemplating;
 using Mono.VisualStudio.TextTemplating.VSHost;
 using NUnit.Framework;
-using SubSonic.Core.Remoting;
 using SubSonic.Core.Remoting.Channels;
 using SubSonic.Core.Remoting.Channels.Ipc;
-using SubSonic.Core.Utilities;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using SubSonic.Core.VisualStudio.Common;
 
 namespace SubSonic.Core.Remoting
 {

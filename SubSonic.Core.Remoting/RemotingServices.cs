@@ -1,9 +1,13 @@
 ﻿using SubSonic.Core.Remoting.Channels;
+using SubSonic.Core.Remoting.Proxies;
 using SubSonic.Core.VisualStudio.Common;
 using SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.ConstrainedExecution;
 using System.Security;
 using System.Security.Permissions;
 using System.Text;
@@ -60,9 +64,30 @@ namespace SubSonic.Core.Remoting
             return GetOrCreateProxy(classToProxy, identity);
         }
 
+        public static object CreateTransparentProxy(RealProxy realProxy, Type classToProxy, IntPtr stub, object stubData)
+        {
+            throw new NotImplementedException();
+        }
+
         private static object GetOrCreateProxy(Type classToProxy, Identity identity)
         {
-            return null;
+            object byRefObject = identity.ByRefObject ?? SetOrCreateProxy(identity, classToProxy);
+            
+            if (identity is ServerIdentity serverIdentity)
+            {
+                if (!classToProxy.IsAssignableFrom(serverIdentity.ServerType))
+                {
+                    throw new InvalidCastException(RemotingResources.InvalidCast.Format(CultureInfo.CurrentCulture, serverIdentity.ServerType, classToProxy));
+                }
+            }
+
+            return byRefObject;
+        }
+
+        private static MarshalByRefObject SetOrCreateProxy(Identity identity, Type classToProxy, object proxy)
+        {
+            RealProxy realProxy 
+            throw new NotImplementedException();
         }
 
         private static void SetChannelSink(Identity identity, IMessageSink channelSink)
@@ -100,5 +125,8 @@ namespace SubSonic.Core.Remoting
             //}
             return objectURI;
         }
+
+        [MethodImpl(MethodImplOptions.InternalCall), SecuritySafeCritical, ReliabilityContract(Consistency.WillNotCorruptState, Cer.Success)]
+        public static extern bool IsTransparentProxy(object proxy);
     }
 }

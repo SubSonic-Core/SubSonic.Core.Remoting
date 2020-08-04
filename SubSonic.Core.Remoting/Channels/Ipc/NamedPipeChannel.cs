@@ -4,13 +4,12 @@ using System.Globalization;
 
 namespace SubSonic.Core.Remoting.Channels.Ipc
 {
-    public class NamedPipeChannel<TMessageType>
+    public class NamedPipeChannel
         : IpcChannel
+        , INamedPipeChannelSender
     {
-        //private PipeClient<TMessageType> pipeClient;
-
-        public NamedPipeChannel(IDictionary properties)
-            : base(properties)
+        public NamedPipeChannel(IDictionary properties, IClientChannelSinkProvider clientChannelSinkProvider)
+            : base(properties, clientChannelSinkProvider)
         {
             this.ChannelPriority = 1;
             this.ChannelName = "named pipe";
@@ -34,10 +33,7 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
             protected set;
         }
 
-        public Uri GetChannelUri()
-        {
-            return new Uri($@"ipc:\\{ChannelName}");
-        }
+        public Uri ChannelUri => new Uri($"ipc://{ChannelName}");
 
         public override IChannel Initialize()
         {
@@ -60,11 +56,6 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
                     }
                 }
             }
-
-            //pipeClient = new PipeClient<TMessageType>(ChannelName, reconnectionInterval: ReconnectionInterval,  formatter: new H.Formatters.BinaryFormatter())
-            //{
-            //    AutoReconnect = AutoReconnect
-            //};
 
             return this;
         }
@@ -115,17 +106,6 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
         public override void StopListening(object data)
         {
             
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                //pipeClient.Dispose();
-                //pipeClient = null;
-            }
-
-            base.Dispose(disposing);
         }
     }
 }

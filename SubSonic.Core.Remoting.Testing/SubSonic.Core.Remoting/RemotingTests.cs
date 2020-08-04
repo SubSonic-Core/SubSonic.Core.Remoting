@@ -4,6 +4,7 @@ using Mono.VisualStudio.TextTemplating.VSHost;
 using NUnit.Framework;
 using SubSonic.Core.Remoting.Channels;
 using SubSonic.Core.Remoting.Channels.Ipc;
+using SubSonic.Core.Remoting.Channels.Providers;
 using System;
 using System.Collections;
 using System.Threading.Tasks;
@@ -19,9 +20,9 @@ namespace SubSonic.Core.Remoting
         {
             Hashtable properties = new Hashtable();
 
-            properties[nameof(NamedPipeChannel<TransformationRunFactory>.ChannelName)] = TransformationRunFactory.TransformationRunFactoryPrefix;
+            properties[nameof(NamedPipeChannel.ChannelName)] = TransformationRunFactory.TransformationRunFactoryPrefix;
 
-            ChannelServices.RegisterChannel(new NamedPipeChannel<TransformationRunFactory>(properties)).Should().BeTrue();
+            ChannelServices.RegisterChannel(new NamedPipeChannel(properties, new NamedPipeSinkProvider())).Should().BeTrue();
         }
 
         [Test]
@@ -32,9 +33,9 @@ namespace SubSonic.Core.Remoting
             {
                 Hashtable properties = new Hashtable();
 
-                properties[nameof(NamedPipeChannel<TransformationRunFactory>.ChannelName)] = TransformationRunFactory.TransformationRunFactoryPrefix;
+                properties[nameof(NamedPipeChannel.ChannelName)] = TransformationRunFactory.TransformationRunFactoryPrefix;
 
-                ChannelServices.RegisterChannel(new NamedPipeChannel<TransformationRunFactory>(properties)).Should().BeTrue();
+                ChannelServices.RegisterChannel(new NamedPipeChannel(properties, new NamedPipeSinkProvider())).Should().BeTrue();
             }).Should().Throw<SubSonicRemotingException>().WithMessage(RemotingResources.ChannelNameAlreadyRegistered.Format(TransformationRunFactory.TransformationRunFactoryPrefix));
         }
 

@@ -89,6 +89,20 @@ namespace SubSonic.Core.Remoting
         /// data object, or null if the channel cannot connect to the given endpoint.</returns>
         [SecurityCritical]
         IMessageSink CreateMessageSink(Uri url, object remoteChannelData, out string objectURI);
+        /// <summary>
+        /// Get all the properties for this channel
+        /// </summary>
+        IDictionary Properties { get; }
+    }
+    /// <summary>
+    /// provides information that a named client will need
+    /// </summary>
+    public interface INamedPipeChannelSender
+        : IChannelSender
+    {
+        bool AutoReconnect { get; }
+        TimeSpan? ReconnectionInterval { get; }
+        Uri ChannelUri { get; }
     }
     /// <summary>
     /// Defines the interface for a message sink.
@@ -227,5 +241,10 @@ namespace SubSonic.Core.Remoting
         IEnumerator GetEnumerator();
 
         object this[object key] { [SecurityCritical] get; [SecurityCritical] set; }
+    }
+
+    public interface IClientFormatterSink 
+        : IMessageSink, IClientChannelSink, IChannelSinkBase
+    {
     }
 }

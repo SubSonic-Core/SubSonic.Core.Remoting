@@ -88,6 +88,15 @@ namespace SubSonic.Core.Remoting {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid Cast From {0} To {1}.
+        /// </summary>
+        public static string InvalidCast {
+            get {
+                return ResourceManager.GetString("InvalidCast", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid url {0}.
         /// </summary>
         public static string InvalidUrl {

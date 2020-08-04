@@ -90,5 +90,10 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
         {
             throw new NotImplementedException();
         }
+
+        public IDictionary Properties
+        {
+            get => throw new NotImplementedException();
+        }
     }
 }

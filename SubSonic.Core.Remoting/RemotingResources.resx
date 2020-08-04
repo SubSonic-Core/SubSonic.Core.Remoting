@@ -126,6 +126,9 @@
   <data name="ChannelNameAlreadyRegistered" xml:space="preserve">
     <value>Remoting channel has already been registered: {0}</value>
   </data>
+  <data name="InvalidCast" xml:space="preserve">
+    <value>Invalid Cast From {0} To {1}</value>
+  </data>
   <data name="InvalidUrl" xml:space="preserve">
     <value>Invalid url {0}</value>
   </data>

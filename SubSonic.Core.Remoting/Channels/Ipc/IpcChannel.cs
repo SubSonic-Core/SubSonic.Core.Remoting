@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using System.Security.AccessControl;
 using System.Security.Permissions;
 using System.Text;
@@ -17,9 +18,10 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
 
         private bool disposedValue;
 
-        public IpcChannel(IDictionary properties)
+        public IpcChannel(IDictionary properties, IClientChannelSinkProvider clientChannelSinkProvider)
         {
             this.properties = properties ?? throw new ArgumentNullException(nameof(properties));
+            this.clientChannelSinkProvider = clientChannelSinkProvider ?? throw new ArgumentNullException(nameof(clientChannelSinkProvider));
 
             ChannelPriority = 20;
             ChannelName = "ipc";
@@ -104,6 +106,29 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
+        }
+
+        public IDictionary Properties
+        {
+            get
+            {
+                Hashtable properties = new Hashtable();
+
+                foreach(PropertyInfo property in GetType().GetProperties())
+                {
+                    if (property.Name.Equals(nameof(Properties), StringComparison.Ordinal))
+                    {
+                        continue;
+                    }
+
+                    if (property.CanRead)
+                    {
+                        properties[property.Name] = property.GetValue(this);
+                    }
+                }
+
+                return properties;
+            }
         }
     }
 }

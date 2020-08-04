@@ -7,9 +7,11 @@ namespace SubSonic.Core.Remoting
 {
     public class Identity
     {
-        private readonly string url;
+        private readonly Uri uri;
         protected IdentityEnum flags;
-        private Uri ObjURI;
+        private string ObjURI;
+        protected object tpOrObject;
+        protected object objectRef;
 
         private IMessageSink channelSink;
 
@@ -21,19 +23,25 @@ namespace SubSonic.Core.Remoting
             }
         }
 
-        public Identity(Uri objURI, string url)
+        public Identity(string objURI, Uri uri)
         {
-            if (url != null)
+            if (uri != null)
             {
                 this.flags |= IdentityEnum.WELLKNOWN;
-                this.url = url;
+                this.uri = uri;
             }
             this.SetOrCreateURI(objURI, true);
         }
 
         public IMessageSink ChannelSink => this.channelSink;
 
-        public void SetOrCreateURI(Uri objURI, bool bIdCtor)
+        public Uri Uri => uri;
+
+        public MarshalByRefObject ByRefObject => tpOrObject as MarshalByRefObject;
+
+        public ObjRef ObjectRef => objectRef as ObjRef;
+
+        public void SetOrCreateURI(string objURI, bool bIdCtor)
         {
             if (!bIdCtor && (this.ObjURI != null))
             {
@@ -51,5 +59,21 @@ namespace SubSonic.Core.Remoting
             }
             return this.channelSink;
         }
+
+        public ObjRef SetObjectRef(ObjRef objectRef)
+        {
+            if (this.objectRef == null)
+            {
+                Interlocked.CompareExchange(ref this.objectRef, objectRef, null);
+            }
+            return this.objectRef as ObjRef;
+        }
+
+        public void SetInIdTable()
+        {
+            flags |= IdentityEnum.IN_IDTABLE;
+        }
+
+        
     }
 }

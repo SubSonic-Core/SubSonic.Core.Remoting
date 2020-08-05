@@ -124,6 +124,51 @@ namespace SubSonic.Core.Remoting {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Serializable Types: {0}.
+        /// </summary>
+        public static string Serialization_ISerializableTypes {
+            get {
+                return ResourceManager.GetString("Serialization_ISerializableTypes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assembly not found: {0}.
+        /// </summary>
+        public static string SerializationAssemblyNotFound {
+            get {
+                return ResourceManager.GetString("SerializationAssemblyNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Serialization Member Information: {0}.
+        /// </summary>
+        public static string SerializationMemberInfo {
+            get {
+                return ResourceManager.GetString("SerializationMemberInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Missing Member: {0}, {1}, {2}.
+        /// </summary>
+        public static string SerializationMissingMember {
+            get {
+                return ResourceManager.GetString("SerializationMissingMember", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Member Information: {0} {1}.
+        /// </summary>
+        public static string SerializationNoMemberInfo {
+            get {
+                return ResourceManager.GetString("SerializationNoMemberInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Uri already exists: {0}.
         /// </summary>
         public static string SetObjectUriForMarshal__UriExists {

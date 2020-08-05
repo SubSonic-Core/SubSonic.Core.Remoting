@@ -138,6 +138,21 @@
   <data name="NotRemotableByReference" xml:space="preserve">
     <value>Type is not remotable by reference: {0}</value>
   </data>
+  <data name="SerializationAssemblyNotFound" xml:space="preserve">
+    <value>Assembly not found: {0}</value>
+  </data>
+  <data name="SerializationMemberInfo" xml:space="preserve">
+    <value>Serialization Member Information: {0}</value>
+  </data>
+  <data name="SerializationMissingMember" xml:space="preserve">
+    <value>Missing Member: {0}, {1}, {2}</value>
+  </data>
+  <data name="SerializationNoMemberInfo" xml:space="preserve">
+    <value>No Member Information: {0} {1}</value>
+  </data>
+  <data name="Serialization_ISerializableTypes" xml:space="preserve">
+    <value>Serializable Types: {0}</value>
+  </data>
   <data name="SetObjectUriForMarshal__UriExists" xml:space="preserve">
     <value>Uri already exists: {0}</value>
   </data>

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Threading;
 
 namespace SubSonic.Core.Remoting.Serialization.Binary
 {
@@ -29,7 +31,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
         }
 
-        internal void AddValue(string name, object value, ref SerializationInfo si, ref object[] memberData)
+        public void AddValue(string name, object value, ref SerializationInfo si, ref object[] memberData)
         {
             if (this.isSi)
             {
@@ -45,21 +47,21 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        internal static ReadObjectInfo Create(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerObjectInfoInit serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
+        public static ReadObjectInfo Create(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerializationObjectInfo serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
             ReadObjectInfo objectInfo = GetObjectInfo(serObjectInfoInit);
             objectInfo.Init(objectType, surrogateSelector, context, objectManager, serObjectInfoInit, converter, bSimpleAssembly);
             return objectInfo;
         }
 
-        internal static ReadObjectInfo Create(Type objectType, string[] memberNames, Type[] memberTypes, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerObjectInfoInit serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
+        public static ReadObjectInfo Create(Type objectType, string[] memberNames, Type[] memberTypes, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerializationObjectInfo serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
             ReadObjectInfo objectInfo = GetObjectInfo(serObjectInfoInit);
             objectInfo.Init(objectType, memberNames, memberTypes, surrogateSelector, context, objectManager, serObjectInfoInit, converter, bSimpleAssembly);
             return objectInfo;
         }
 
-        internal MemberInfo GetMemberInfo(string name)
+        public MemberInfo GetMemberInfo(string name)
         {
             string text2;
             if (this.cache == null)
@@ -78,12 +80,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     Type local1 = this.objectType;
                     text1 = null;
                 }
-                throw new SerializationException(System.SR.Format(System.SR.Serialization_MemberInfo, text1 + " " + name));
+                throw new SerializationException(RemotingResources.SerializationNoMemberInfo.Format(text1, name));
             }
-            if (this.cache._memberInfos != null)
+            if (this.cache.MemberInfos != null)
             {
                 int index = this.Position(name);
-                return ((index != -1) ? this.cache._memberInfos[index] : null);
+                return ((index != -1) ? this.cache.MemberInfos[index] : null);
             }
             if (this.objectType != null)
             {
@@ -94,48 +96,48 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 Type local2 = this.objectType;
                 text2 = null;
             }
-            throw new SerializationException(System.SR.Format(System.SR.Serialization_NoMemberInfo, text2 + " " + name));
+            throw new SerializationException(RemotingResources.SerializationNoMemberInfo.Format(text2, name));
         }
 
-        internal Type GetMemberType(MemberInfo objMember)
+        public Type GetMemberType(MemberInfo objMember)
         {
-            if (!(objMember is FieldInfo))
+            if (objMember is FieldInfo fieldInfo)
             {
-                throw new SerializationException(System.SR.Format(System.SR.Serialization_SerMemberInfo, objMember.GetType()));
+                return fieldInfo.FieldType;
             }
-            return ((FieldInfo)objMember).FieldType;
+            throw new SerializationException(RemotingResources.SerializationMemberInfo.Format(objMember.GetType()));
         }
-
-        internal Type[] GetMemberTypes(string[] inMemberNames, Type objectType)
+        
+        public Type[] GetMemberTypes(string[] inMemberNames, Type objectType)
         {
             if (this.isSi)
             {
-                throw new SerializationException(System.SR.Format(System.SR.Serialization_ISerializableTypes, objectType));
+                throw new SerializationException(RemotingResources.Serialization_ISerializableTypes.Format(objectType));
             }
             if (this.cache == null)
             {
                 return null;
             }
-            if (this.cache._memberTypes == null)
+            if (this.cache.MemberTypes == null)
             {
-                this.cache._memberTypes = new Type[this.count];
+                this.cache.MemberTypes = new Type[this.count];
                 for (int j = 0; j < this.count; j++)
                 {
-                    this.cache._memberTypes[j] = this.GetMemberType(this.cache._memberInfos[j]);
+                    this.cache.MemberTypes[j] = this.GetMemberType(this.cache.MemberTypes[j]);
                 }
             }
             bool flag = false;
-            if (inMemberNames.Length < this.cache._memberInfos.Length)
+            if (inMemberNames.Length < this.cache.MemberInfos.Length)
             {
                 flag = true;
             }
-            Type[] typeArray = new Type[this.cache._memberInfos.Length];
+            Type[] typeArray = new Type[this.cache.MemberInfos.Length];
             bool flag2 = false;
-            for (int i = 0; i < this.cache._memberInfos.Length; i++)
+            for (int i = 0; i < this.cache.MemberInfos.Length; i++)
             {
-                if (!flag && inMemberNames[i].Equals(this.cache._memberInfos[i].Name))
+                if (!flag && inMemberNames[i].Equals(this.cache.MemberInfos[i].Name))
                 {
-                    typeArray[i] = this.cache._memberTypes[i];
+                    typeArray[i] = this.cache.MemberTypes[i];
                 }
                 else
                 {
@@ -145,31 +147,32 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     {
                         if (index < inMemberNames.Length)
                         {
-                            if (!this.cache._memberInfos[i].Name.Equals(inMemberNames[index]))
+                            if (!this.cache.MemberInfos[i].Name.Equals(inMemberNames[index]))
                             {
                                 index++;
                                 continue;
                             }
-                            typeArray[i] = this.cache._memberTypes[i];
+                            typeArray[i] = this.cache.MemberTypes[i];
                             flag2 = true;
                         }
-                        if (flag2 || (this.isSimpleAssembly || (this.cache._memberInfos[i].GetCustomAttribute(typeof(OptionalFieldAttribute), false) != null)))
+                        if (flag2 || (this.isSimpleAssembly || (this.cache.MemberInfos[i].GetCustomAttribute(typeof(OptionalFieldAttribute), false) != null)))
                         {
                             break;
                         }
-                        throw new SerializationException(System.SR.Format(System.SR.Serialization_MissingMember, this.cache._memberNames[i], objectType, typeof(OptionalFieldAttribute).FullName));
+
+                        throw new SerializationException(RemotingResources.SerializationMissingMember.Format(cache.MemberNames[i], objectType, typeof(OptionalFieldAttribute).FullName));
                     }
                 }
             }
             return typeArray;
         }
 
-        private static ReadObjectInfo GetObjectInfo(SerObjectInfoInit serObjectInfoInit)
+        private static ReadObjectInfo GetObjectInfo(SerializationObjectInfo serObjectInfoInit)
         {
-            return new ReadObjectInfo { objectInfoId = Interlocked.Increment(ref readObjectInfoCounter) };
+            return new ReadObjectInfo() { objectInfoId = Interlocked.Increment(ref readObjectInfoCounter) };
         }
 
-        internal Type GetType(string name)
+        public Type GetType(string name)
         {
             string text1;
             int index = this.Position(name);
@@ -177,7 +180,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 return null;
             }
-            Type type = this.isTyped ? this.cache._memberTypes[index] : this.memberTypesList[index];
+            Type type = this.isTyped ? this.cache.MemberTypes[index] : this.memberTypesList[index];
             if (type != null)
             {
                 return type;
@@ -188,13 +191,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             else
             {
-                Type local1 = this.objectType;
                 text1 = null;
             }
-            throw new SerializationException(System.SR.Format(System.SR.Serialization_ISerializableTypes, text1 + " " + name));
+            throw new SerializationException(RemotingResources.Serialization_ISerializableTypes.Format($"{text1} {name}"));
         }
 
-        internal void Init(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerObjectInfoInit serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
+        public void Init(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerializationObjectInfo serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
             this.objectType = objectType;
             this.objectManager = objectManager;
@@ -205,7 +207,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this.InitReadConstructor(objectType, surrogateSelector, context);
         }
 
-        internal void Init(Type objectType, string[] memberNames, Type[] memberTypes, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerObjectInfoInit serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
+        public void Init(Type objectType, string[] memberNames, Type[] memberTypes, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerializationObjectInfo serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
             this.objectType = objectType;
             this.objectManager = objectManager;
@@ -225,13 +227,13 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        internal void InitDataStore(ref SerializationInfo si, ref object[] memberData)
+        public void InitDataStore(ref SerializationInfo si, ref object[] memberData)
         {
             if (!this.isSi)
             {
                 if ((memberData == null) && (this.cache != null))
                 {
-                    memberData = new object[this.cache._memberNames.Length];
+                    memberData = new object[this.cache.MemberNames.Length];
                 }
             }
             else if (si == null)
@@ -242,22 +244,22 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         private void InitMemberInfo()
         {
-            this.cache = new SerObjectInfoCache(this.objectType);
-            this.cache._memberInfos = FormatterServices.GetSerializableMembers(this.objectType, this.context);
-            this.count = this.cache._memberInfos.Length;
-            this.cache._memberNames = new string[this.count];
-            this.cache._memberTypes = new Type[this.count];
+            this.cache = new SerializationObjectInfoCache(this.objectType);
+            this.cache.MemberInfos = FormatterServices.GetSerializableMembers(this.objectType, this.context);
+            this.count = this.cache.MemberInfos.Length;
+            this.cache.MemberNames = new string[this.count];
+            this.cache.MemberTypes = new Type[this.count];
             for (int i = 0; i < this.count; i++)
             {
-                this.cache._memberNames[i] = this.cache._memberInfos[i].Name;
-                this.cache._memberTypes[i] = this.GetMemberType(this.cache._memberInfos[i]);
+                this.cache.MemberNames[i] = this.cache.MemberInfos[i].Name;
+                this.cache.MemberTypes[i] = this.GetMemberType(this.cache.MemberInfos[i]);
             }
             this.isTyped = true;
         }
 
         private void InitNoMembers()
         {
-            this.cache = new SerObjectInfoCache(this.objectType);
+            this.cache = new SerializationObjectInfoCache(this.objectType);
         }
 
         private void InitReadConstructor(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context)
@@ -300,15 +302,15 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        internal void ObjectEnd()
+        public void ObjectEnd()
         {
         }
 
-        internal void PopulateObjectMembers(object obj, object[] memberData)
+        public void PopulateObjectMembers(object obj, object[] memberData)
         {
             if (!this.isSi && (memberData != null))
             {
-                FormatterServices.PopulateObjectMembers(obj, this.cache._memberInfos, memberData);
+                FormatterServices.PopulateObjectMembers(obj, this.cache.MemberInfos, memberData);
             }
         }
 
@@ -316,19 +318,19 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             if (this.cache != null)
             {
-                if ((this.cache._memberNames.Length != 0) && this.cache._memberNames[this.lastPosition].Equals(name))
+                if ((this.cache.MemberNames.Length != 0) && this.cache.MemberNames[this.lastPosition].Equals(name))
                 {
                     return this.lastPosition;
                 }
                 int num = this.lastPosition + 1;
                 this.lastPosition = num;
-                if ((num < this.cache._memberNames.Length) && this.cache._memberNames[this.lastPosition].Equals(name))
+                if ((num < this.cache.MemberNames.Length) && this.cache.MemberNames[this.lastPosition].Equals(name))
                 {
                     return this.lastPosition;
                 }
-                for (int i = 0; i < this.cache._memberNames.Length; i++)
+                for (int i = 0; i < this.cache.MemberNames.Length; i++)
                 {
-                    if (this.cache._memberNames[i].Equals(name))
+                    if (this.cache.MemberNames[i].Equals(name))
                     {
                         this.lastPosition = i;
                         return this.lastPosition;
@@ -339,18 +341,18 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             return -1;
         }
 
-        internal void PrepareForReuse()
+        public void PrepareForReuse()
         {
             this.lastPosition = 0;
         }
 
-        internal void RecordFixup(long objectId, string name, long idRef)
+        public void RecordFixup(long objectId, string name, long idRef)
         {
             if (this.isSi)
             {
                 if (this.objectManager == null)
                 {
-                    throw new SerializationException(System.SR.Serialization_CorruptedStream);
+                    throw new SerializationException(RemotingResources.ThBinaryStreamHasBeenCorrupted);
                 }
                 this.objectManager.RecordDelayedFixup(objectId, name, idRef);
             }
@@ -361,9 +363,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 {
                     if (this.objectManager == null)
                     {
-                        throw new SerializationException(System.SR.Serialization_CorruptedStream);
+                        throw new SerializationException(RemotingResources.ThBinaryStreamHasBeenCorrupted);
                     }
-                    this.objectManager.RecordFixup(objectId, this.cache._memberInfos[index], idRef);
+                    this.objectManager.RecordFixup(objectId, this.cache.MemberInfos[index], idRef);
                 }
             }
         }

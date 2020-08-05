@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters;
 using System.Text;
 
 namespace SubSonic.Core.Remoting.Serialization.Binary
 {
-    public sealed class BinaryReader
+    public sealed class ObjectReader
     {
         private class TypeNAssembly
         {
@@ -55,7 +56,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         private string previousName;
         private Type previousType;
 
-        public BinaryReader(Stream serializationStream, ISurrogateSelector surrogateSelector, StreamingContext context, FormatterHelper fh, SerializationBinder binder)
+        public ObjectReader(Stream serializationStream, ISurrogateSelector surrogateSelector, StreamingContext context, FormatterHelper fh, SerializationBinder binder)
             : this()
         {
             this.stream = serializationStream ?? throw new ArgumentNullException(nameof(serializationStream));
@@ -65,7 +66,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this.binder = binder;
         }
 
-        private BinaryReader()
+        private ObjectReader()
         {
             this.typeCache = new NameCache();
         }
@@ -89,6 +90,79 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             if (!type.IsSerializable && !HasSurrogate(type))
             {
                 throw new SerializationException(RemotingResources.NotMarkedForSerialization.Format(type.FullName, type.Assembly.FullName));
+            }
+        }
+
+        public ReadObjectInfo CreateReadObjectInfo(Type objectType)
+        {
+            return ReadObjectInfo.Create(objectType, this.surrogates, this.context, this.objectManager, this.objectInfo, this.converter, this.isSimpleAssembly);
+        }
+
+        public ReadObjectInfo CreateReadObjectInfo(Type objectType, string[] memberNames, Type[] memberTypes)
+        {
+            return ReadObjectInfo.Create(objectType, memberNames, memberTypes, this.surrogates, this.context, this.objectManager, this.objectInfo, this.converter, this.isSimpleAssembly);
+        }
+
+        public object CrossAppDomainArray(int index)
+        {
+            return this.crossAppDomainArray?[index];
+        }
+
+        internal object Deserialize(BinaryParser parser, bool fCheck)
+        {
+            if (parser == null)
+            {
+                throw new ArgumentNullException("serParser");
+            }
+            this.fullDeserialization = false;
+            this.TopObject = null;
+            this.topId = 0L;
+            this.isSimpleAssembly = this.fh.AssemblyFormat == FormatterAssemblyStyle.Simple;
+            using (SerializationInfo.StartDeserialization())
+            {
+                if (this.fullDeserialization)
+                {
+                    this.objectManager = new ObjectManager(this.surrogates, this.context);
+                    this.objectInfo = new SerializationObjectInfo();
+                }
+                parser.Run();
+                if (this.fullDeserialization)
+                {
+                    this.objectManager.DoFixups();
+                }
+                if (this.TopObject == null)
+                {
+                    throw new SerializationException(System.SR.Serialization_TopObject);
+                }
+                if (this.HasSurrogate(this.TopObject.GetType()) && (this.topId != 0))
+                {
+                    this.TopObject = this.objectManager.GetObject(this.topId);
+                }
+                if (this.TopObject is IObjectReference)
+                {
+                    this.TopObject = ((IObjectReference)this.TopObject).GetRealObject(this.context);
+                }
+                if (this.fullDeserialization)
+                {
+                    this.objectManager.RaiseDeserializationEvent();
+                }
+                return this.TopObject;
+            }
+        }
+
+        public object TopObject
+        {
+            get
+            {
+                return this.topObject;
+            }
+            set
+            {
+                this.topObject = value;
+                if (this.objectManager != null)
+                {
+                    this.objectManager.TopObject = value;
+                }
             }
         }
 

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
+using RuntimeFormatterServices = System.Runtime.Serialization.FormatterServices;
 
 namespace SubSonic.Core.Remoting.Serialization
 {
@@ -65,91 +66,177 @@ namespace SubSonic.Core.Remoting.Serialization
 
         public static Type GetTypeFromAssembly(Assembly assembly, string typeName)
         {
-            if (assembly is null)
-            {
-                throw new ArgumentNullException(nameof(assembly));
-            }
-
-            return assembly.GetType(typeName, false, false);
+            return RuntimeFormatterServices.GetTypeFromAssembly(assembly, typeName);
         }
 
         public static MemberInfo[] GetSerializableMembers(Type type)
         {
-            return GetSerializableMembers(type, new StreamingContext(StreamingContextStates.All));
+            return RuntimeFormatterServices.GetSerializableMembers(type);
         }
 
         public static MemberInfo[] GetSerializableMembers(Type type, StreamingContext context)
         {
-            if (type == null)
-            {
-                throw new ArgumentNullException("type");
-            }
-            return s_memberInfoTable.GetOrAdd(new MemberHolder(type, context), delegate (MemberHolder mh) {
-                return InternalGetSerializableMembers(mh.MemberType);
-            });
+            return RuntimeFormatterServices.GetSerializableMembers(type, context);
+            //if (type == null)
+            //{
+            //    throw new ArgumentNullException("type");
+            //}
+            //return s_memberInfoTable.GetOrAdd(new MemberHolder(type, context), delegate (MemberHolder mh) {
+            //    return InternalGetSerializableMembers(mh.MemberType);
+            //});
         }
 
-        private static FieldInfo[] InternalGetSerializableMembers(Type type)
+        public static Assembly LoadAssemblyFromStringNoThrow(string assemblyName)
         {
-            if (type.IsInterface)
+            Assembly assembly;
+            try
             {
-                return Array.Empty<FieldInfo>();
+                assembly = LoadAssemblyFromString(assemblyName);
             }
-            if (!type.IsSerializable)
+            catch (Exception)
             {
-                throw new SerializationException(System.SR.Format(System.SR.Serialization_NonSerType, type.FullName, type.Assembly.FullName));
+                return null;
             }
-            FieldInfo[] serializableFields = GetSerializableFields(type);
-            Type baseType = type.BaseType;
-            if ((baseType != null) && (baseType != typeof(object)))
-            {
-                Type[] typeArray;
-                int num;
-                bool flag = GetParentTypes(baseType, out typeArray, out num);
-                if (num > 0)
-                {
-                    List<FieldInfo> list = new List<FieldInfo>();
-                    int index = 0;
-                    while (true)
-                    {
-                        if (index >= num)
-                        {
-                            if ((list != null) && (list.Count > 0))
-                            {
-                                FieldInfo[] destinationArray = new FieldInfo[list.Count + serializableFields.Length];
-                                Array.Copy(serializableFields, 0, destinationArray, 0, serializableFields.Length);
-                                list.CopyTo(destinationArray, serializableFields.Length);
-                                serializableFields = destinationArray;
-                            }
-                            break;
-                        }
-                        baseType = typeArray[index];
-                        if (!baseType.IsSerializable)
-                        {
-                            throw new SerializationException(System.SR.Format(System.SR.Serialization_NonSerType, baseType.FullName, baseType.Module.Assembly.FullName));
-                        }
-                        FieldInfo[] fields = baseType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
-                        string namePrefix = flag ? baseType.Name : baseType.FullName;
-                        FieldInfo[] infoArray3 = fields;
-                        int num3 = 0;
-                        while (true)
-                        {
-                            if (num3 >= infoArray3.Length)
-                            {
-                                index++;
-                                break;
-                            }
-                            FieldInfo field = infoArray3[num3];
-                            if (!field.IsNotSerialized)
-                            {
-                                list.Add(new SerializationFieldInfo(field, namePrefix));
-                            }
-                            num3++;
-                        }
-                    }
-                }
-            }
-            return serializableFields;
+            return assembly;
+        }
+
+        public static Assembly LoadAssemblyFromString(string assemblyName)
+        {
+            return Assembly.Load(new AssemblyName(assemblyName));
+        }
+
+        //private static FieldInfo[] InternalGetSerializableMembers(Type type)
+        //{
+        //    if (type.IsInterface)
+        //    {
+        //        return Array.Empty<FieldInfo>();
+        //    }
+        //    if (!type.IsSerializable)
+        //    {
+        //        throw new SerializationException(RemotingResources.NotMarkedForSerialization.Format(type.FullName, type.Assembly.FullName));
+        //    }
+        //    FieldInfo[] serializableFields = GetSerializableFields(type);
+        //    Type baseType = type.BaseType;
+        //    if ((baseType != null) && (baseType != typeof(object)))
+        //    {
+        //        Type[] typeArray;
+        //        int num;
+        //        bool flag = GetParentTypes(baseType, out typeArray, out num);
+        //        if (num > 0)
+        //        {
+        //            List<FieldInfo> list = new List<FieldInfo>();
+        //            int index = 0;
+        //            while (true)
+        //            {
+        //                if (index >= num)
+        //                {
+        //                    if ((list != null) && (list.Count > 0))
+        //                    {
+        //                        FieldInfo[] destinationArray = new FieldInfo[list.Count + serializableFields.Length];
+        //                        Array.Copy(serializableFields, 0, destinationArray, 0, serializableFields.Length);
+        //                        list.CopyTo(destinationArray, serializableFields.Length);
+        //                        serializableFields = destinationArray;
+        //                    }
+        //                    break;
+        //                }
+        //                baseType = typeArray[index];
+        //                if (!baseType.IsSerializable)
+        //                {
+        //                    throw new SerializationException(RemotingResources.NotMarkedForSerialization.Format(baseType.FullName, baseType.Assembly.FullName));
+        //                }
+        //                FieldInfo[] fields = baseType.GetFields(BindingFlags.NonPublic | BindingFlags.Instance);
+        //                string namePrefix = flag ? baseType.Name : baseType.FullName;
+        //                FieldInfo[] infoArray3 = fields;
+        //                int num3 = 0;
+        //                while (true)
+        //                {
+        //                    if (num3 >= infoArray3.Length)
+        //                    {
+        //                        index++;
+        //                        break;
+        //                    }
+        //                    FieldInfo field = infoArray3[num3];
+        //                    if (!field.IsNotSerialized)
+        //                    {
+        //                        list.Add(new SerializationFieldInfo(field, namePrefix));
+        //                    }
+        //                    num3++;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    return serializableFields;
+        //}
+
+        //private static bool GetParentTypes(Type parentType, out Type[] parentTypes, out int parentTypeCount)
+        //{
+        //    parentTypes = null;
+        //    parentTypeCount = 0;
+        //    bool flag = true;
+        //    Type type = typeof(object);
+        //    for (Type type2 = parentType; type2 != type; type2 = type2.BaseType)
+        //    {
+        //        if (!type2.IsInterface)
+        //        {
+        //            string name = type2.Name;
+        //            int index = 0;
+        //            while (true)
+        //            {
+        //                if (flag && (index < parentTypeCount))
+        //                {
+        //                    string str2 = parentTypes[index].Name;
+        //                    if ((str2.Length != name.Length) || ((str2[0] != name[0]) || (name != str2)))
+        //                    {
+        //                        index++;
+        //                        continue;
+        //                    }
+        //                    flag = false;
+        //                }
+        //                if ((parentTypes == null) || (parentTypeCount == parentTypes.Length))
+        //                {
+        //                    Array.Resize<Type>(ref parentTypes, Math.Max(parentTypeCount * 2, 12));
+        //                }
+        //                int num2 = parentTypeCount;
+        //                parentTypeCount = num2 + 1;
+        //                parentTypes[num2] = type2;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //    return flag;
+        //}
+
+        //private static FieldInfo[] GetSerializableFields(Type type)
+        //{
+        //    FieldInfo[] fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
+        //    int index = 0;
+        //    for (int i = 0; i < fields.Length; i++)
+        //    {
+        //        if ((fields[i].Attributes & FieldAttributes.NotSerialized) != FieldAttributes.NotSerialized)
+        //        {
+        //            index++;
+        //        }
+        //    }
+        //    if (index == fields.Length)
+        //    {
+        //        return fields;
+        //    }
+        //    FieldInfo[] infoArray2 = new FieldInfo[index];
+        //    index = 0;
+        //    for (int j = 0; j < fields.Length; j++)
+        //    {
+        //        if ((fields[j].Attributes & FieldAttributes.NotSerialized) != FieldAttributes.NotSerialized)
+        //        {
+        //            infoArray2[index] = fields[j];
+        //            index++;
+        //        }
+        //    }
+        //    return infoArray2;
+        //}
+
+        public static object PopulateObjectMembers(object obj, MemberInfo[] members, object[] data)
+        {
+            return RuntimeFormatterServices.PopulateObjectMembers(obj, members, data);
         }
     }
 }

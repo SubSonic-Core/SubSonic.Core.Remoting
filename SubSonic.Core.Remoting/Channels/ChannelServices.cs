@@ -1,33 +1,28 @@
-﻿using SubSonic.Core.Remoting.Channels.Ipc;
-using SubSonic.Core.VisualStudio.Common.SubSonic.Core.Remoting;
+﻿using SubSonic.Core.Remoting.Contracts;
 using System;
 using System.Security;
 using System.Security.Permissions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SubSonic.Core.Remoting.Channels
 {
     public static class ChannelServices
     {
-        private static object s_channelLock = new object();
+        private static readonly object s_channelLock = new object();
         private static volatile RegisteredChannelList s_registeredChannels = new RegisteredChannelList();
 
-        [SecuritySafeCritical, SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.RemotingConfiguration)]
-        public static bool RegisterChannel(IpcChannel channel, bool ensureSecurity = false, CancellationToken cancellationToken = default)
-        {
-            return RegisterChannelInternal(channel, ensureSecurity, cancellationToken);
-        }
-
-        private static bool RegisterChannelInternal(IpcChannel channel, bool ensureSecurity, CancellationToken cancellationToken)
+        [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.RemotingConfiguration)]
+        public static async Task<bool> RegisterChannelAsync(IChannel channel, bool ensureSecurity = false)
         {
             if (channel == null)
             {
                 throw new ArgumentNullException(nameof(channel));
             }
 
-            channel.Initialize();
+            await channel.InitializeAsync();
 
-            bool 
+            bool
                 lockTaken = false,
                 success = false;
             try
@@ -54,11 +49,11 @@ namespace SubSonic.Core.Remoting.Channels
 
                 RegisteredChannel[] channels = new RegisteredChannel[list.Count + 1];
 
-                int 
+                int
                     priority = channel.ChannelPriority,
                     index = 0;
-                
-                while(true)
+
+                while (true)
                 {
                     if (index < list.Count)
                     {
@@ -98,31 +93,6 @@ namespace SubSonic.Core.Remoting.Channels
             }
 
             return success;
-        }
-
-        internal static IMessageSink CreateMessageSink(Uri uri, object data, out string objectURI)
-        {
-            IMessageSink messageSink = null;
-            objectURI = null;
-
-            RegisteredChannelList list = s_registeredChannels;
-
-            for (int i = 0, n = list.Count; i < n; i++)
-            {
-                if (list.IsSender(i))
-                {
-                    if (list[i].Channel is IChannelSender sender)
-                    {
-                        messageSink = sender.CreateMessageSink(uri, data, out objectURI);
-
-                        if (messageSink != null)
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-            return messageSink;
         }
     }
 }

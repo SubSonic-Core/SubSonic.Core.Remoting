@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SubSonic.Core.Remoting.Contracts;
+using System;
 using System.Collections.Generic;
 
 namespace SubSonic.Core.Remoting.Channels
@@ -17,13 +18,13 @@ namespace SubSonic.Core.Remoting.Channels
                 flags |= ChannelTypeEnum.Sender;
             }
 
-            if (channel is IChannelReceiver)
+            if (channel is IChannelReciever)
             {
-                flags |= ChannelTypeEnum.Receiver;
+                flags |= ChannelTypeEnum.Reciever;
             }
         }
 
-        public bool IsReceiver => (flags & ChannelTypeEnum.Receiver) != 0;
+        public bool IsReceiver => (flags & ChannelTypeEnum.Reciever) != 0;
 
         public bool IsSender => (flags & ChannelTypeEnum.Sender) != 0;
 
@@ -43,10 +44,7 @@ namespace SubSonic.Core.Remoting.Channels
             return x.Equals(y);
         }
 
-        public override int GetHashCode()
-        {
-            return Channel.GetHashCode();
-        }
+        public override int GetHashCode() => Channel.GetHashCode();
 
         public int GetHashCode(IChannel obj)
         {

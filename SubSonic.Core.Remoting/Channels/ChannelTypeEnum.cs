@@ -11,6 +11,6 @@ namespace SubSonic.Core.Remoting.Channels
     {
         Unknown = 0,
         Sender = 1,
-        Receiver = 2
+        Reciever = 2
     }
 }

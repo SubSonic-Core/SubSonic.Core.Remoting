@@ -6,7 +6,7 @@ using System.Text;
 
 namespace SubSonic.Core.Remoting.Serialization
 {
-    internal class FormatterHelper
+    public sealed class FormatterHelper
     {
         public FormatterTypeStyle TypeFormat { get; set; }
         public FormatterAssemblyStyle AssemblyFormat { get; set; }

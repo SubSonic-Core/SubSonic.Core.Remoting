@@ -1,4 +1,7 @@
-﻿namespace SubSonic.Core
+﻿using System;
+using System.Globalization;
+
+namespace SubSonic.Core
 {
     public static partial class Extensions
     {
@@ -14,7 +17,12 @@
 
         public static string Format(this string source, params object[] arguments)
         {
-            return string.Format(source, arguments);
+            return source.Format(CultureInfo.InvariantCulture, arguments);
+        }
+
+        public static string Format(this string source, IFormatProvider provider, params object[] arguments)
+        {
+            return string.Format(provider, source, arguments);
         }
     }
 }

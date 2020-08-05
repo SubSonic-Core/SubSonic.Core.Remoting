@@ -6,6 +6,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Text;
+using BinaryReader = SubSonic.Core.Remoting.Serialization.Binary.BinaryReader;
 
 namespace SubSonic.Core.Remoting.Serialization
 {
@@ -65,6 +66,7 @@ namespace SubSonic.Core.Remoting.Serialization
             fh.SerializerType = Binary.SerializerType.Binary;
             fh.AssemblyFormat = assemblyStyle;
             fh.SecurityLevel = securityLevel;
+            BinaryReader reader = new BinaryReader(serializationStream, SurrogateSelector, Context, fh, Binder);
         }
 
         public void Serialize(Stream serializationStream, object graph)

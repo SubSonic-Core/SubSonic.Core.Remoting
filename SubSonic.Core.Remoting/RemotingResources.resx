@@ -132,10 +132,16 @@
   <data name="InvalidUrl" xml:space="preserve">
     <value>Invalid url {0}</value>
   </data>
+  <data name="NotMarkedForSerialization" xml:space="preserve">
+    <value>{0} is missing the serialization attribute in {1}.</value>
+  </data>
   <data name="NotRemotableByReference" xml:space="preserve">
     <value>Type is not remotable by reference: {0}</value>
   </data>
   <data name="SetObjectUriForMarshal__UriExists" xml:space="preserve">
     <value>Uri already exists: {0}</value>
+  </data>
+  <data name="ThBinaryStreamHasBeenCorrupted" xml:space="preserve">
+    <value>The binary stream has been corrupted.</value>
   </data>
 </root>

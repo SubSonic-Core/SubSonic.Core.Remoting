@@ -6,8 +6,8 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 {
     public sealed class SerializationObjectInfo
     {
-        private readonly Dictionary<Type, SerObjectInfoCache> _seenBeforeTable = new Dictionary<Type, SerObjectInfoCache>();
+        private readonly Dictionary<Type, SerializationObjectInfo> _seenBeforeTable = new Dictionary<Type, SerializationObjectInfo>();
         public int _objectInfoIdCount = 1;
-        public SerializationStack _oiPool = new SerializationStack("SerObjectInfo Pool");
+        public SerializationStack _oiPool = new SerializationStack("SerializationObjectInfo Pool");
     }
 }

@@ -106,6 +106,15 @@ namespace SubSonic.Core.Remoting {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} is missing the serialization attribute in {1}..
+        /// </summary>
+        public static string NotMarkedForSerialization {
+            get {
+                return ResourceManager.GetString("NotMarkedForSerialization", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type is not remotable by reference: {0}.
         /// </summary>
         public static string NotRemotableByReference {
@@ -120,6 +129,15 @@ namespace SubSonic.Core.Remoting {
         public static string SetObjectUriForMarshal__UriExists {
             get {
                 return ResourceManager.GetString("SetObjectUriForMarshal__UriExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The binary stream has been corrupted..
+        /// </summary>
+        public static string ThBinaryStreamHasBeenCorrupted {
+            get {
+                return ResourceManager.GetString("ThBinaryStreamHasBeenCorrupted", resourceCulture);
             }
         }
     }

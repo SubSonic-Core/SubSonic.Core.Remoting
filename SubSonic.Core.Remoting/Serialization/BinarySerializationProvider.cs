@@ -7,12 +7,12 @@ using System.Text;
 
 namespace SubSonic.Core.Remoting.Serialization
 {
-    public class BinarySerializer
-        : ISerializer
+    public class BinarySerializationProvider
+        : ISerializationProvider
     {
         private readonly IFormatter formatter;
 
-        public BinarySerializer()
+        public BinarySerializationProvider()
         {
             formatter = new BinaryFormatter();
         }

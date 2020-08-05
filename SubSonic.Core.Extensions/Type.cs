@@ -21,5 +21,19 @@ namespace SubSonic.Core
             name = Regex.Replace(name, @", PublicKeyToken=\w+", string.Empty);
             return name;
         }
+
+        public static Type ToType(this string configName)
+        {
+            try
+            {
+                var result = Type.GetType(configName);
+                return result;
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e);
+            }
+            return null;
+        }
     }
 }

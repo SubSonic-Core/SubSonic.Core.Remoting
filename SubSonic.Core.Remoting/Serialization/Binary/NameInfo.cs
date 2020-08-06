@@ -59,7 +59,6 @@
                 string text2 = this._fullName;
                 if (this._fullName == null)
                 {
-                    string local1 = this._fullName;
                     text2 = this._fullName = this._type.FullName;
                 }
                 return text2;

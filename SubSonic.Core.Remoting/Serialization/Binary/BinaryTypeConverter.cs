@@ -5,7 +5,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 {
     public static class BinaryTypeConverter
     {
-        public static BinaryTypeEnum GetBinaryTypeInfo(Type type, WriteObjectInfo objectInfo, string typeName, ObjectWriter objectWriter, out object typeInformation, out int assemId)
+        public static BinaryTypeEnum GetBinaryTypeInfo(Type type, WriteObjectInfo objectInfo, ObjectWriter objectWriter, out object typeInformation, out int assemId)
         {
             BinaryTypeEnum stringArray;
             assemId = 0;
@@ -41,7 +41,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
                 else
                 {
-                    string fullName = null;
+                    string fullName;
                     if (objectInfo == null)
                     {
                         fullName = type.Assembly.FullName;

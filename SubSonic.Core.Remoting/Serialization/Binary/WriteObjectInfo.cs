@@ -29,9 +29,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
         }
 
-        private static void CheckTypeForwardedFrom(SerializationObjectInfoCache cache, Type objectType, string binderAssemblyString)
-        {
-        }
+        //private static void CheckTypeForwardedFrom(SerializationObjectInfoCache cache, Type objectType, string binderAssemblyString)
+        //{
+        //}
 
         internal string GetAssemblyString()
         {
@@ -139,13 +139,13 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 {
                     _si = new SerializationInfo(objectType, converter);
                     _cache = new SerializationObjectInfoCache(objectType);
-                    CheckTypeForwardedFrom(_cache, objectType, _binderAssemblyString);
+                    //CheckTypeForwardedFrom(_cache, objectType, _binderAssemblyString);
                     _isSi = true;
                 }
                 if (!_isSi)
                 {
                     InitMemberInfo();
-                    CheckTypeForwardedFrom(_cache, objectType, _binderAssemblyString);
+                    //CheckTypeForwardedFrom(_cache, objectType, _binderAssemblyString);
                 }
             }
         }
@@ -163,10 +163,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             else
             {
-                ISurrogateSelector selector;
                 InvokeSerializationBinder(binder);
                 objectWriter.ObjectManager.RegisterObject(obj);
-                if (surrogateSelector != null && (_serializationSurrogate = surrogateSelector.GetSurrogate(_objectType, context, out selector)) != null)
+                if (surrogateSelector != null && (_serializationSurrogate = surrogateSelector.GetSurrogate(_objectType, context, out _)) != null)
                 {
                     _si = new SerializationInfo(_objectType, converter);
                     if (!_objectType.IsPrimitive)
@@ -184,23 +183,20 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     _si = new SerializationInfo(_objectType, converter);
                     serializable.GetObjectData(_si, context);
                     InitSiWrite();
-                    CheckTypeForwardedFrom(_cache, _objectType, _binderAssemblyString);
+                    //CheckTypeForwardedFrom(_cache, _objectType, _binderAssemblyString);
                 }
                 else
                 {
                     InitMemberInfo();
-                    CheckTypeForwardedFrom(_cache, _objectType, _binderAssemblyString);
-
-                    
+                    //CheckTypeForwardedFrom(_cache, _objectType, _binderAssemblyString);                    
                 }
             }
         }
 
         private void InitSiWrite()
         {
-            SerializationInfoEnumerator enumerator = null;
             _isSi = true;
-            enumerator = _si.GetEnumerator();
+            _ = _si.GetEnumerator();
             int memberCount = _si.MemberCount;
             TypeInformation typeInformation = null;
             string fullTypeName = _si.FullTypeName;
@@ -227,7 +223,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 MemberTypes = new Type[memberCount]
             };
             _memberData = new object[memberCount];
-            enumerator = _si.GetEnumerator();
+            SerializationInfoEnumerator enumerator = _si.GetEnumerator();
             for (int i = 0; enumerator.MoveNext(); i++)
             {
                 _cache.MemberNames[i] = enumerator.Name;

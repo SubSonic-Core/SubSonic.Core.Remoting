@@ -14,18 +14,18 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
     public sealed class BinaryParser
     {
         private static readonly Encoding s_encoding = new UTF8Encoding(false, true);
-        private ObjectReader objectReader;
-        private Stream input;
+        private readonly ObjectReader objectReader;
+        private readonly Stream input;
         private long topId;
         private long headerId;
         private SizedArray objectMapIdTable;
         private SizedArray assemIdToAssemblyTable;
-        private SerializationStack stack = new SerializationStack("ObjectProgressStack");
+        private readonly SerializationStack stack = new SerializationStack("ObjectProgressStack");
         private BinaryTypeEnum expectedType = BinaryTypeEnum.ObjectUrt;
         private object expectedTypeInformation;
         private ParseRecord _prs;
         private BinaryAssemblyInfo _systemAssemblyInfo;
-        private BinaryReader dataReader;
+        private readonly BinaryReader dataReader;
         private SerializationStack opPool;
         private BinaryObject _binaryObject;
         private BinaryObjectWithMap _bowm;
@@ -50,15 +50,13 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             unsafe
             {
-                DateTime time1 = new DateTime(dateData & 0x3fffffffffffffffL);
-
                 return MemoryMarshal.Cast<long, DateTime>(new ReadOnlySpan<long>(&dateData, 1))[0];
             }
         }
 
         private ObjectProgress GetOp()
         {
-            ObjectProgress progress = null;
+            ObjectProgress progress;
             if (opPool == null || opPool.IsEmpty())
             {
                 progress = new ObjectProgress();
@@ -82,9 +80,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         private void ReadArray(BinaryHeaderEnum binaryHeaderEnum)
         {
-            BinaryAssemblyInfo assemblyInfo = null;
             BinaryArray array = new BinaryArray(binaryHeaderEnum);
             array.Read(this);
+            BinaryAssemblyInfo assemblyInfo;
             if (array._binaryTypeEnum != BinaryTypeEnum.ObjectUser)
             {
                 assemblyInfo = SystemAssemblyInfo;
@@ -318,15 +316,13 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             BinaryCrossAppDomainMap map = new BinaryCrossAppDomainMap();
             map.Read(this);
             object obj2 = objectReader.CrossAppDomainArrayAt(map._crossAppDomainArrayIndex);
-            BinaryObjectWithMap record = obj2 as BinaryObjectWithMap;
-            if (record != null)
+            if (obj2 is BinaryObjectWithMap record)
             {
                 ReadObjectWithMap(record);
             }
             else
             {
-                BinaryObjectWithMapTyped typed = obj2 as BinaryObjectWithMapTyped;
-                if (typed == null)
+                if (!(obj2 is BinaryObjectWithMapTyped typed))
                 {
                     throw new SerializationException(RemotingResources.SerializationCrossDomainError.Format("BinaryObjectMap", obj2));
                 }
@@ -853,8 +849,10 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         internal object ReadValue(PrimitiveTypeEnum code)
         {
-            object obj2 = null;
+            object obj2;
+#pragma warning disable IDE0066 // Convert switch statement to expression
             switch (code)
+#pragma warning restore IDE0066 // Convert switch statement to expression
             {
                 case PrimitiveTypeEnum.Boolean:
                     obj2 = ReadBoolean();
@@ -1056,7 +1054,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
+#pragma warning disable IDE0074 // Use compound assignment
                 return _systemAssemblyInfo ?? (_systemAssemblyInfo = new BinaryAssemblyInfo(Converter.s_urtAssemblyString, Converter.s_urtAssembly));
+#pragma warning restore IDE0074 // Use compound assignment
             }
         }
 
@@ -1064,7 +1064,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
+#pragma warning disable IDE0074 // Use compound assignment
                 return objectMapIdTable ?? (objectMapIdTable = new SizedArray());
+#pragma warning restore IDE0074 // Use compound assignment
             }
         }
 
@@ -1072,7 +1074,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
+#pragma warning disable IDE0074 // Use compound assignment
                 return assemIdToAssemblyTable ?? (assemIdToAssemblyTable = new SizedArray(2));
+#pragma warning restore IDE0074 // Use compound assignment
             }
         }
 
@@ -1080,7 +1084,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
+#pragma warning disable IDE0074 // Use compound assignment
                 return _prs ?? (_prs = new ParseRecord());
+#pragma warning restore IDE0074 // Use compound assignment
             }
         }
     }

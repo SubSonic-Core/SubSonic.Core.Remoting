@@ -37,20 +37,12 @@ namespace SubSonic.Core.Remoting.Serialization
             Context = context;
         }
 
-        public static TypeInformation GetTypeInformation(Type type)
+        public static TypeInformation GetTypeInformation(Type type) => s_typeNameCache.GetOrAdd(type, delegate (Type t)
         {
-            return s_typeNameCache.GetOrAdd(type, delegate (Type t) {
-                bool flag;
-                return new TypeInformation(FormatterServices.GetClrTypeFullName(t), FormatterServices.GetClrAssemblyName(t, out flag), flag);
-            });
-        }
+            return new TypeInformation(FormatterServices.GetClrTypeFullName(t), FormatterServices.GetClrAssemblyName(t, out bool flag), flag);
+        });
 
         public object Deserialize(Stream serializationStream)
-        {
-            return Deserialize(serializationStream, true);
-        }
-
-        internal object Deserialize(Stream serializationStream, bool check)
         {
             if (serializationStream == null)
             {
@@ -69,21 +61,18 @@ namespace SubSonic.Core.Remoting.Serialization
                 SecurityLevel = FilterLevel
             };
 
-            ObjectReader reader = new ObjectReader(serializationStream, SurrogateSelector, Context, fh, Binder);
-            reader.CrossAppDomainArray = this.crossAppDomainArray;
-            return reader.Deserialize(new BinaryParser(serializationStream, reader), check);
+            ObjectReader reader = new ObjectReader(serializationStream, SurrogateSelector, Context, fh, Binder)
+            {
+                CrossAppDomainArray = this.crossAppDomainArray
+            };
+            return reader.Deserialize(new BinaryParser(serializationStream, reader));
         }
 
         public void Serialize(Stream serializationStream, object graph)
         {
-            this.Serialize(serializationStream, graph, true);
-        }
-
-        internal void Serialize(Stream serializationStream, object graph, bool check)
-        {
             if (serializationStream == null)
             {
-                throw new ArgumentNullException("serializationStream");
+                throw new ArgumentNullException(nameof(serializationStream));
             }
             FormatterHelper fh = new FormatterHelper
             {
@@ -95,7 +84,7 @@ namespace SubSonic.Core.Remoting.Serialization
 
             ObjectWriter objectWriter = new ObjectWriter(SurrogateSelector, Context, fh, Binder);
             BinaryFormatterWriter serWriter = new BinaryFormatterWriter(serializationStream, objectWriter, TypeFormat);
-            objectWriter.Serialize(graph, serWriter, check);
+            objectWriter.Serialize(graph, serWriter);
             crossAppDomainArray = objectWriter._crossAppDomainArray;
         }
     }

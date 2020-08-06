@@ -11,14 +11,13 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         private Queue<object> _objectQueue;
         private ObjectIDGenerator _idGenerator;
         private int _currentId = 1;
-        private ISurrogateSelector _surrogates;
-        private StreamingContext _context;
+        private readonly ISurrogateSelector _surrogates;
+        private readonly StreamingContext _context;
         private BinaryFormatterWriter _serWriter;
-        private SerializationObjectManager _objectManager;
         private long _topId;
-        private string _topName;
-        private FormatterHelper _formatterEnums;
-        private SerializationBinder _binder;
+        private readonly string _topName;
+        private readonly FormatterHelper _formatterEnums;
+        private readonly SerializationBinder _binder;
         private SerializationObjectInfo _serObjectInfoInit;
         private IFormatterConverter _formatterConverter;
         internal object[] _crossAppDomainArray;
@@ -27,7 +26,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         private Type _previousType;
         private PrimitiveTypeEnum _previousCode;
         private Dictionary<string, long> _assemblyToIdTable;
-        private SerializationStack _niPool = new SerializationStack("NameInfo Pool");
+        private readonly SerializationStack _niPool = new SerializationStack("NameInfo Pool");
 
         internal ObjectWriter(ISurrogateSelector selector, StreamingContext context, FormatterHelper formatterEnums, SerializationBinder binder)
         {
@@ -35,7 +34,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this._context = context;
             this._binder = binder;
             this._formatterEnums = formatterEnums;
-            this._objectManager = new SerializationObjectManager(context);
+            this.ObjectManager = new SerializationObjectManager(context);
         }
 
         private bool CheckForNull(WriteObjectInfo objectInfo, NameInfo memberNameInfo, NameInfo typeNameInfo, object data)
@@ -45,7 +44,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 if (!typeNameInfo._isArrayItem)
                 {
-                    this._serWriter.WriteNullMember(memberNameInfo, typeNameInfo);
+                    this._serWriter.WriteNullMember(memberNameInfo/*, typeNameInfo*/);
                 }
                 else if (typeNameInfo._arrayEnum == ArrayTypeEnum.Single)
                 {
@@ -53,7 +52,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
                 else
                 {
-                    this._serWriter.WriteNullItem(memberNameInfo, typeNameInfo);
+                    this._serWriter.WriteNullItem(/*memberNameInfo, typeNameInfo*/);
                 }
             }
             return flag;
@@ -94,7 +93,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     num = this.InternalGetId("___AssemblyString___" + assemblyString, false, null, out isNew);
                     this._assemblyToIdTable[assemblyString] = num;
                 }
-                this._serWriter.WriteAssembly(objectInfo._objectType, str2, (int)num, isNew);
+                this._serWriter.WriteAssembly(str2, (int)num, isNew);
             }
             return num;
         }
@@ -116,15 +115,14 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         private object GetNext(out long objID)
         {
-            bool flag;
-            if (this._objectQueue.Count == 0)
+            if (_objectQueue.Count == 0)
             {
                 objID = 0L;
                 return null;
             }
             object obj2 = this._objectQueue.Dequeue();
             object obj3 = (obj2 is WriteObjectInfo info) ? info._obj : obj2;
-            objID = this._idGenerator.HasId(obj3, out flag);
+            objID = this._idGenerator.HasId(obj3, out bool flag);
             if (flag)
             {
                 throw new SerializationException(RemotingResources.SerializationNoObjectID.Format(obj3));
@@ -181,8 +179,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             long num = 0L;
             if (obj != null)
             {
-                bool flag;
-                num = this.InternalGetId(obj, assignUniqueIdToValueType, type, out flag);
+                num = this.InternalGetId(obj, assignUniqueIdToValueType, type, out bool flag);
                 if (flag && (num > 0L))
                 {
                     this._objectQueue.Enqueue(objectInfo ?? obj);
@@ -191,31 +188,25 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             return num;
         }
 
-        internal void Serialize(object graph, BinaryFormatterWriter serWriter, bool fCheck)
+        internal void Serialize(object graph, BinaryFormatterWriter serWriter)
         {
             object obj2;
-            long num2;
-            bool flag;
             if (graph == null)
             {
                 throw new ArgumentNullException("graph");
             }
-            if (serWriter == null)
-            {
-                throw new ArgumentNullException("serWriter");
-            }
-            this._serWriter = serWriter;
+
+            this._serWriter = serWriter ?? throw new ArgumentNullException("serWriter");
             serWriter.WriteBegin();
-            long headerId = 0L;
             this._idGenerator = new ObjectIDGenerator();
             this._objectQueue = new Queue<object>();
             this._formatterConverter = new FormatterConverter();
             this._serObjectInfoInit = new SerializationObjectInfo();
-            this._topId = this.InternalGetId(graph, false, null, out flag);
-            headerId = -1L;
+            this._topId = this.InternalGetId(graph, false, null, out _);
+            long headerId = -1L;
             this.WriteSerializedStreamHeader(this._topId, headerId);
             this._objectQueue.Enqueue(graph);
-            while ((obj2 = this.GetNext(out num2)) != null)
+            while ((obj2 = this.GetNext(out long num2)) != null)
             {
                 WriteObjectInfo objectInfo;
                 if (obj2 is WriteObjectInfo info)
@@ -235,7 +226,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             serWriter.WriteSerializationHeaderEnd();
             serWriter.WriteEnd();
-            this._objectManager.RaiseOnSerializedEvent();
+            this.ObjectManager.RaiseOnSerializedEvent();
         }
 
         internal PrimitiveTypeEnum ToCode(Type type)
@@ -308,14 +299,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             else if (objectInfo._isArray)
             {
-                this.WriteArray(objectInfo, memberNameInfo, null);
+                this.WriteArray(objectInfo, memberNameInfo);
             }
             else
             {
-                string[] strArray;
-                Type[] typeArray;
-                object[] objArray;
-                objectInfo.GetMemberInfo(out strArray, out typeArray, out objArray);
+                objectInfo.GetMemberInfo(out string[] strArray, out Type[] typeArray, out object[] objArray);
                 if (objectInfo._isSi || this.CheckTypeFormat(this._formatterEnums.TypeFormat, FormatterTypeStyle.TypesAlways))
                 {
                     memberNameInfo._transmitTypeOnObject = true;
@@ -326,7 +314,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 WriteObjectInfo[] memberObjectInfos = new WriteObjectInfo[strArray.Length];
                 for (int i = 0; i < typeArray.Length; i++)
                 {
-                    Type type = (typeArray[i] != null) ? typeArray[i] : ((objArray[i] != null) ? this.GetType(objArray[i]) : Converter.s_typeofObject);
+                    Type type = typeArray[i] ?? ((objArray[i] != null) ? this.GetType(objArray[i]) : Converter.s_typeofObject);
                     if ((this.ToCode(type) == PrimitiveTypeEnum.Invalid) && !object.ReferenceEquals(type, Converter.s_typeofString))
                     {
                         if (objArray[i] != null)
@@ -376,25 +364,25 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             for (int i = 0; i < length; i++)
             {
-                this.WriteMemberSetup(objectInfo, memberNameInfo, typeNameInfo, memberNames[i], memberTypes[i], memberData[i], memberObjectInfos[i]);
+                this.WriteMemberSetup(objectInfo, memberNameInfo, memberNames[i], memberTypes[i], memberData[i], memberObjectInfos[i]);
             }
             if (memberNameInfo != null)
             {
                 memberNameInfo._objectId = objectInfo._objectId;
-                this._serWriter.WriteObjectEnd(memberNameInfo, typeNameInfo);
+                //this._serWriter.WriteObjectEnd(memberNameInfo, typeNameInfo);
             }
             else if ((objectInfo._objectId == this._topId) && (this._topName != null))
             {
-                this._serWriter.WriteObjectEnd(nameInfo, typeNameInfo);
+                //this._serWriter.WriteObjectEnd(nameInfo, typeNameInfo);
                 this.PutNameInfo(nameInfo);
             }
             else if (!object.ReferenceEquals(objectInfo._objectType, Converter.s_typeofString))
             {
-                this._serWriter.WriteObjectEnd(typeNameInfo, typeNameInfo);
+                //this._serWriter.WriteObjectEnd(typeNameInfo, typeNameInfo);
             }
         }
 
-        private void WriteArray(WriteObjectInfo objectInfo, NameInfo memberNameInfo, WriteObjectInfo memberObjectInfo)
+        private void WriteArray(WriteObjectInfo objectInfo, NameInfo memberNameInfo)
         {
             bool flag = false;
             if (memberNameInfo == null)
@@ -436,7 +424,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             arrayElemTypeNameInfo._arrayEnum = ee;
             if (object.ReferenceEquals(elementType, Converter.s_typeofByte) && ((rank == 1) && (lowerBoundA[0] == 0)))
             {
-                this._serWriter.WriteObjectByteArray(memberNameInfo, arrayNameInfo, info, arrayElemTypeNameInfo, lengthA[0], lowerBoundA[0], (byte[])array);
+                this._serWriter.WriteObjectByteArray(/*memberNameInfo,*/ arrayNameInfo, info, arrayElemTypeNameInfo, lengthA[0], lowerBoundA[0], (byte[])array);
             }
             else
             {
@@ -452,7 +440,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
                 if (ee == ArrayTypeEnum.Single)
                 {
-                    this._serWriter.WriteSingleArray(memberNameInfo, arrayNameInfo, info, arrayElemTypeNameInfo, lengthA[0], lowerBoundA[0], array);
+                    this._serWriter.WriteSingleArray(/*memberNameInfo,*/ arrayNameInfo, info, arrayElemTypeNameInfo, lengthA[0], lowerBoundA[0], array);
                     if (!Converter.IsWriteAsByteArray(arrayElemTypeNameInfo._primitiveTypeEnum) || (lowerBoundA[0] != 0))
                     {
                         object[] objArray = null;
@@ -484,7 +472,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 else if (ee == ArrayTypeEnum.Jagged)
                 {
                     arrayNameInfo._objectId = num;
-                    this._serWriter.WriteJaggedArray(memberNameInfo, arrayNameInfo, info, arrayElemTypeNameInfo, lengthA[0], lowerBoundA[0]);
+                    this._serWriter.WriteJaggedArray(arrayNameInfo, info, arrayElemTypeNameInfo, lengthA[0], lowerBoundA[0]);
                     Array array2 = array;
                     int index = lowerBoundA[0];
                     while (true)
@@ -501,7 +489,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 else
                 {
                     arrayNameInfo._objectId = num;
-                    this._serWriter.WriteRectangleArray(memberNameInfo, arrayNameInfo, info, arrayElemTypeNameInfo, rank, lengthA, lowerBoundA);
+                    this._serWriter.WriteRectangleArray(/*memberNameInfo,*/ arrayNameInfo, info, arrayElemTypeNameInfo, rank, lengthA, lowerBoundA);
                     bool flag2 = false;
                     int index = 0;
                     while (true)
@@ -523,7 +511,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                         break;
                     }
                 }
-                this._serWriter.WriteObjectEnd(memberNameInfo, arrayNameInfo);
+                //this._serWriter.WriteObjectEnd(memberNameInfo, arrayNameInfo);
                 this.PutNameInfo(arrayElemTypeNameInfo);
                 if (flag)
                 {
@@ -537,7 +525,6 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             arrayElemTypeNameInfo._isArrayItem = true;
             if (!this.CheckForNull(objectInfo, arrayElemTypeNameInfo, arrayElemTypeNameInfo, data))
             {
-                NameInfo typeNameInfo = null;
                 Type type = null;
                 bool flag = false;
                 if (arrayElemTypeNameInfo._transmitTypeOnMember)
@@ -552,6 +539,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                         flag = true;
                     }
                 }
+                NameInfo typeNameInfo;
                 if (!flag)
                 {
                     typeNameInfo = arrayElemTypeNameInfo;
@@ -582,7 +570,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     typeNameInfo._objectId = num;
                     if (num >= 1L)
                     {
-                        this._serWriter.WriteItemObjectRef(arrayElemTypeNameInfo, (int)num);
+                        this._serWriter.WriteItemObjectRef(/*arrayElemTypeNameInfo,*/ (int)num);
                     }
                     else
                     {
@@ -607,7 +595,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             if (object.ReferenceEquals(typeNameInfo._type, Converter.s_typeofString))
             {
-                this.WriteString(memberNameInfo, typeNameInfo, data);
+                this.WriteString(/*memberNameInfo,*/ typeNameInfo, data);
             }
             else
             {
@@ -627,7 +615,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             return true;
         }
 
-        private void WriteMembers(NameInfo memberNameInfo, NameInfo memberTypeNameInfo, object memberData, WriteObjectInfo objectInfo, NameInfo typeNameInfo, WriteObjectInfo memberObjectInfo)
+        private void WriteMembers(NameInfo memberNameInfo, NameInfo memberTypeNameInfo, object memberData, WriteObjectInfo objectInfo, WriteObjectInfo memberObjectInfo)
         {
             Type nullableType = memberNameInfo._type;
             bool assignUniqueIdToValueType = false;
@@ -670,23 +658,24 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
                 if ((memberObjectInfo != null) && memberObjectInfo._isArray)
                 {
-                    long objectId = 0L;
                     if (type == null)
                     {
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
                         type = this.GetType(obj2);
+#pragma warning restore IDE0059 // Unnecessary assignment of a value
                     }
-                    objectId = this.Schedule(obj2, false, null, memberObjectInfo);
+                    long objectId = this.Schedule(obj2, false, null, memberObjectInfo);
                     if (objectId > 0L)
                     {
                         memberNameInfo._objectId = objectId;
-                        this.WriteObjectRef(memberNameInfo, objectId);
+                        this.WriteObjectRef(/*memberNameInfo,*/ objectId);
                     }
                     else
                     {
-                        this._serWriter.WriteMemberNested(memberNameInfo);
+                        this._serWriter.WriteMemberNested();
                         memberObjectInfo._objectId = objectId;
                         memberNameInfo._objectId = objectId;
-                        this.WriteArray(memberObjectInfo, memberNameInfo, memberObjectInfo);
+                        this.WriteArray(memberObjectInfo, memberNameInfo);
                         objectInfo.ObjectEnd();
                     }
                 }
@@ -709,13 +698,13 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     else
                     {
                         memberNameInfo._objectId = objectId;
-                        this.WriteObjectRef(memberNameInfo, objectId);
+                        this.WriteObjectRef(/*memberNameInfo,*/ objectId);
                     }
                 }
             }
         }
 
-        private void WriteMemberSetup(WriteObjectInfo objectInfo, NameInfo memberNameInfo, NameInfo typeNameInfo, string memberName, Type memberType, object memberData, WriteObjectInfo memberObjectInfo)
+        private void WriteMemberSetup(WriteObjectInfo objectInfo, NameInfo memberNameInfo, string memberName, Type memberType, object memberData, WriteObjectInfo memberObjectInfo)
         {
             NameInfo info = this.MemberToNameInfo(memberName);
             if (memberObjectInfo != null)
@@ -723,18 +712,17 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 info._assemId = memberObjectInfo._assemId;
             }
             info._type = memberType;
-            NameInfo memberTypeNameInfo = null;
-            memberTypeNameInfo = (memberObjectInfo != null) ? this.TypeToNameInfo(memberObjectInfo) : this.TypeToNameInfo(memberType);
+            NameInfo memberTypeNameInfo = memberObjectInfo != null ? TypeToNameInfo(memberObjectInfo) : TypeToNameInfo(memberType);
             info._transmitTypeOnObject = memberNameInfo._transmitTypeOnObject;
             info._isParentTypeOnObject = memberNameInfo._isParentTypeOnObject;
-            this.WriteMembers(info, memberTypeNameInfo, memberData, objectInfo, typeNameInfo, memberObjectInfo);
+            this.WriteMembers(info, memberTypeNameInfo, memberData, objectInfo, memberObjectInfo);
             this.PutNameInfo(info);
             this.PutNameInfo(memberTypeNameInfo);
         }
 
-        private void WriteObjectRef(NameInfo nameInfo, long objectId)
+        private void WriteObjectRef(/*NameInfo nameInfo,*/ long objectId)
         {
-            this._serWriter.WriteMemberObjectRef(nameInfo, (int)objectId);
+            this._serWriter.WriteMemberObjectRef(/*nameInfo,*/ (int)objectId);
         }
 
         private unsafe void WriteRectangle(WriteObjectInfo objectInfo, int rank, int[] maxA, Array array, NameInfo arrayElemNameTypeInfo, int[] lowerBoundA)
@@ -806,7 +794,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this._serWriter.WriteSerializationHeader((int)topId, (int)headerId, 1, 0);
         }
 
-        private void WriteString(NameInfo memberNameInfo, NameInfo typeNameInfo, object stringObject)
+        private void WriteString(/*NameInfo memberNameInfo,*/ NameInfo typeNameInfo, object stringObject)
         {
             bool isNew = true;
             long objectId = -1L;
@@ -817,20 +805,14 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             typeNameInfo._objectId = objectId;
             if (!isNew && (objectId >= 0L))
             {
-                this.WriteObjectRef(memberNameInfo, objectId);
+                this.WriteObjectRef(/*memberNameInfo,*/ objectId);
             }
             else
             {
-                this._serWriter.WriteMemberString(memberNameInfo, typeNameInfo, (string)((string)stringObject));
+                this._serWriter.WriteMemberString(/*memberNameInfo,*/ typeNameInfo, (string)((string)stringObject));
             }
         }
 
-        internal SerializationObjectManager ObjectManager
-        {
-            get
-            {
-                return this._objectManager;
-            }
-        }
+        internal SerializationObjectManager ObjectManager { get; private set; }
     }
 }

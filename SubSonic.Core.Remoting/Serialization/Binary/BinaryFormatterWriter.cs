@@ -54,7 +54,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         private void WriteArrayAsBytes(Array array, int typeLength)
         {
             this.InternalWriteItemNull();
-            int num = array.Length * typeLength;
+            //int num = array.Length * typeLength;
             int num2 = 0;
             if (this._byteBuffer == null)
             {
@@ -62,7 +62,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             while (num2 < array.Length)
             {
-                int num3 = Math.Min((int)(0x1000 / typeLength), (int)(array.Length - num2));
+                int num3 = Math.Min(0x1000 / typeLength, array.Length - num2);
                 int count = num3 * typeLength;
                 Buffer.BlockCopy(array, num2 * typeLength, this._byteBuffer, 0, count);
                 if (!BitConverter.IsLittleEndian)
@@ -90,7 +90,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        internal void WriteAssembly(Type type, string assemblyString, int assemId, bool isNew)
+        internal void WriteAssembly(string assemblyString, int assemId, bool isNew)
         {
             this.InternalWriteItemNull();
             if (assemblyString == null)
@@ -194,20 +194,18 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this.InternalWriteItemNull();
         }
 
-        internal void WriteItemObjectRef(NameInfo nameInfo, int idRef)
+        internal void WriteItemObjectRef(/*NameInfo nameInfo,*/ int idRef)
         {
             this.InternalWriteItemNull();
-            this.WriteMemberObjectRef(nameInfo, idRef);
+            this.WriteMemberObjectRef(/*nameInfo,*/ idRef);
         }
 
-        internal void WriteJaggedArray(NameInfo memberNameInfo, NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int length, int lowerBound)
+        internal void WriteJaggedArray(NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int length, int lowerBound)
         {
             BinaryArrayTypeEnum jagged;
             this.InternalWriteItemNull();
             int[] lengthA = new int[] { length };
             int[] lowerBoundA = null;
-            object typeInformation = null;
-            int assemId = 0;
             if (lowerBound == 0)
             {
                 jagged = BinaryArrayTypeEnum.Jagged;
@@ -217,7 +215,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 jagged = BinaryArrayTypeEnum.JaggedOffset;
                 lowerBoundA = new int[] { lowerBound };
             }
-            BinaryTypeEnum binaryTypeEnum = BinaryTypeConverter.GetBinaryTypeInfo(arrayElemTypeNameInfo._type, objectInfo, arrayElemTypeNameInfo.NIname, this._objectWriter, out typeInformation, out assemId);
+            BinaryTypeEnum binaryTypeEnum = BinaryTypeConverter.GetBinaryTypeInfo(arrayElemTypeNameInfo._type, objectInfo, _objectWriter, out object typeInformation, out int assemId);
             if (this._binaryArray == null)
             {
                 this._binaryArray = new BinaryArray();
@@ -250,12 +248,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        internal void WriteMemberNested(NameInfo memberNameInfo)
+        internal void WriteMemberNested(/*NameInfo memberNameInfo*/)
         {
             this.InternalWriteItemNull();
         }
 
-        internal void WriteMemberObjectRef(NameInfo memberNameInfo, int idRef)
+        internal void WriteMemberObjectRef(/*NameInfo memberNameInfo,*/ int idRef)
         {
             this.InternalWriteItemNull();
             if (this._memberReference == null)
@@ -266,19 +264,19 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this._memberReference.Write(this);
         }
 
-        internal void WriteMemberString(NameInfo memberNameInfo, NameInfo typeNameInfo, string value)
+        internal void WriteMemberString(/*NameInfo memberNameInfo,*/ NameInfo typeNameInfo, string value)
         {
             this.InternalWriteItemNull();
             this.WriteObjectString((int)typeNameInfo._objectId, value);
         }
 
-        internal void WriteNullItem(NameInfo itemNameInfo, NameInfo typeNameInfo)
+        internal void WriteNullItem(/*NameInfo itemNameInfo, NameInfo typeNameInfo*/)
         {
             this._consecutiveNullArrayEntryCount++;
             this.InternalWriteItemNull();
         }
 
-        internal void WriteNullMember(NameInfo memberNameInfo, NameInfo typeNameInfo)
+        internal void WriteNullMember(NameInfo memberNameInfo/*, NameInfo typeNameInfo*/)
         {
             this.InternalWriteItemNull();
             if (this._objectNull == null)
@@ -296,15 +294,14 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         internal void WriteObject(NameInfo nameInfo, NameInfo typeNameInfo, int numMembers, string[] memberNames, Type[] memberTypes, WriteObjectInfo[] memberObjectInfos)
         {
             string str;
-            ObjectMapInfo info;
             this.InternalWriteItemNull();
             int objectId = (int)nameInfo._objectId;
-            str = (objectId < 0) ? (str = typeNameInfo.NIname) : (str = nameInfo.NIname);
+            str = (objectId < 0) ? typeNameInfo.NIname : nameInfo.NIname;
             if (this._objectMapTable == null)
             {
                 this._objectMapTable = new Dictionary<string, ObjectMapInfo>();
             }
-            if (this._objectMapTable.TryGetValue(str, out info) && info.IsCompatible(numMembers, memberNames, memberTypes))
+            if (this._objectMapTable.TryGetValue(str, out ObjectMapInfo info) && info.IsCompatible(numMembers, memberNames, memberTypes))
             {
                 if (this._binaryObject == null)
                 {
@@ -352,8 +349,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                             }
                             break;
                         }
-                        object typeInformation = null;
-                        binaryTypeEnumA[index] = BinaryTypeConverter.GetBinaryTypeInfo(memberTypes[index], memberObjectInfos[index], null, this._objectWriter, out typeInformation, out num);
+                        binaryTypeEnumA[index] = BinaryTypeConverter.GetBinaryTypeInfo(memberTypes[index], memberObjectInfos[index], this._objectWriter, out object typeInformation, out num);
                         typeInformationA[index] = typeInformation;
                         memberAssemIds[index] = num;
                         index++;
@@ -362,15 +358,15 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        internal void WriteObjectByteArray(NameInfo memberNameInfo, NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int length, int lowerBound, byte[] byteA)
+        internal void WriteObjectByteArray(/*NameInfo memberNameInfo,*/ NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int length, int lowerBound, byte[] byteA)
         {
             this.InternalWriteItemNull();
-            this.WriteSingleArray(memberNameInfo, arrayNameInfo, objectInfo, arrayElemTypeNameInfo, length, lowerBound, byteA);
+            this.WriteSingleArray(/*memberNameInfo,*/ arrayNameInfo, objectInfo, arrayElemTypeNameInfo, length, lowerBound, byteA);
         }
 
-        internal void WriteObjectEnd(NameInfo memberNameInfo, NameInfo typeNameInfo)
-        {
-        }
+        //internal void WriteObjectEnd(NameInfo memberNameInfo, NameInfo typeNameInfo)
+        //{
+        //}
 
         internal void WriteObjectString(int objectId, string value)
         {
@@ -383,13 +379,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this._binaryObjectString.Write(this);
         }
 
-        internal void WriteRectangleArray(NameInfo memberNameInfo, NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int rank, int[] lengthA, int[] lowerBoundA)
+        internal void WriteRectangleArray(/*NameInfo memberNameInfo,*/ NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int rank, int[] lengthA, int[] lowerBoundA)
         {
             this.InternalWriteItemNull();
             BinaryArrayTypeEnum rectangular = BinaryArrayTypeEnum.Rectangular;
-            object typeInformation = null;
-            int assemId = 0;
-            BinaryTypeEnum binaryTypeEnum = BinaryTypeConverter.GetBinaryTypeInfo(arrayElemTypeNameInfo._type, objectInfo, arrayElemTypeNameInfo.NIname, this._objectWriter, out typeInformation, out assemId);
+            BinaryTypeEnum binaryTypeEnum = BinaryTypeConverter.GetBinaryTypeInfo(arrayElemTypeNameInfo._type, objectInfo, this._objectWriter, out object typeInformation, out int assemId);
             if (this._binaryArray == null)
             {
                 this._binaryArray = new BinaryArray();
@@ -432,14 +426,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this._dataWriter.Write(value);
         }
 
-        internal void WriteSingleArray(NameInfo memberNameInfo, NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int length, int lowerBound, Array array)
+        internal void WriteSingleArray(/*NameInfo memberNameInfo,*/ NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int length, int lowerBound, Array array)
         {
             BinaryArrayTypeEnum single;
-            int num;
             this.InternalWriteItemNull();
             int[] lengthA = new int[] { length };
             int[] lowerBoundA = null;
-            object typeInformation = null;
             if (lowerBound == 0)
             {
                 single = BinaryArrayTypeEnum.Single;
@@ -449,7 +441,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 single = BinaryArrayTypeEnum.SingleOffset;
                 lowerBoundA = new int[] { lowerBound };
             }
-            BinaryTypeEnum binaryTypeEnum = BinaryTypeConverter.GetBinaryTypeInfo(arrayElemTypeNameInfo._type, objectInfo, arrayElemTypeNameInfo.NIname, this._objectWriter, out typeInformation, out num);
+            BinaryTypeEnum binaryTypeEnum = BinaryTypeConverter.GetBinaryTypeInfo(arrayElemTypeNameInfo._type, objectInfo, this._objectWriter, out object typeInformation, out int num);
             if (this._binaryArray == null)
             {
                 this._binaryArray = new BinaryArray();

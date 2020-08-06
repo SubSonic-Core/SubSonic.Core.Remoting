@@ -59,7 +59,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         internal static Array CreatePrimitiveArray(PrimitiveTypeEnum code, int length)
         {
+#pragma warning disable IDE0066 // Convert switch statement to expression
             switch (code)
+#pragma warning restore IDE0066 // Convert switch statement to expression
             {
                 case PrimitiveTypeEnum.Boolean:
                     return new bool[length];
@@ -297,7 +299,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public static int TypeLength(PrimitiveTypeEnum code)
         {
+#pragma warning disable IDE0066 // Convert switch statement to expression
             switch (code)
+#pragma warning restore IDE0066 // Convert switch statement to expression
             {
                 case PrimitiveTypeEnum.Boolean:
                     return 1;

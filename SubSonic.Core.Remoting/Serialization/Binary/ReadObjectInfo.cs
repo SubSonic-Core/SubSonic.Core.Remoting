@@ -53,14 +53,14 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public static ReadObjectInfo Create(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerializationObjectInfo serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
-            ReadObjectInfo objectInfo = GetObjectInfo(serObjectInfoInit);
+            ReadObjectInfo objectInfo = GetObjectInfo();
             objectInfo.Init(objectType, surrogateSelector, context, objectManager, serObjectInfoInit, converter, bSimpleAssembly);
             return objectInfo;
         }
 
         public static ReadObjectInfo Create(Type objectType, string[] memberNames, Type[] memberTypes, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerializationObjectInfo serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
-            ReadObjectInfo objectInfo = GetObjectInfo(serObjectInfoInit);
+            ReadObjectInfo objectInfo = GetObjectInfo();
             objectInfo.Init(objectType, memberNames, memberTypes, surrogateSelector, context, objectManager, serObjectInfoInit, converter, bSimpleAssembly);
             return objectInfo;
         }
@@ -134,7 +134,6 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 flag = true;
             }
             Type[] typeArray = new Type[this.cache.MemberInfos.Length];
-            bool flag2 = false;
             for (int i = 0; i < this.cache.MemberInfos.Length; i++)
             {
                 if (!flag && inMemberNames[i].Equals(this.cache.MemberInfos[i].Name))
@@ -143,7 +142,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
                 else
                 {
-                    flag2 = false;
+                    bool flag2 = false;
                     int index = 0;
                     while (true)
                     {
@@ -169,7 +168,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             return typeArray;
         }
 
-        private static ReadObjectInfo GetObjectInfo(SerializationObjectInfo serObjectInfoInit)
+        private static ReadObjectInfo GetObjectInfo(/*SerializationObjectInfo serObjectInfoInit*/)
         {
             return new ReadObjectInfo() { objectInfoId = Interlocked.Increment(ref readObjectInfoCounter) };
         }
@@ -246,8 +245,10 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         private void InitMemberInfo()
         {
-            this.cache = new SerializationObjectInfoCache(this.ObjectType);
-            this.cache.MemberInfos = FormatterServices.GetSerializableMembers(this.ObjectType, this.context);
+            this.cache = new SerializationObjectInfoCache(this.ObjectType)
+            {
+                MemberInfos = FormatterServices.GetSerializableMembers(this.ObjectType, this.context)
+            };
             this.count = this.cache.MemberInfos.Length;
             this.cache.MemberNames = new string[this.count];
             this.cache.MemberTypes = new Type[this.count];

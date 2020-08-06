@@ -35,12 +35,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        private Stream stream;
-        private ISurrogateSelector surrogates;
-        private StreamingContext context;
+        private readonly Stream stream;
+        private readonly ISurrogateSelector surrogates;
+        private readonly StreamingContext context;
         private ObjectManager objectManager;
-        private FormatterHelper fh;
-        private SerializationBinder binder;
+        private readonly FormatterHelper fh;
+        private readonly SerializationBinder binder;
         private long topId;
         private bool isSimpleAssembly;
         private object topObject;
@@ -76,13 +76,15 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
+#pragma warning disable IDE0074 // Use compound assignment
                 return valueFixupStack ?? (valueFixupStack = new SerializationStack("ValueType Fixup Stack"));
+#pragma warning restore IDE0074 // Use compound assignment
             }
         }
 
-        private static void CheckTypeForwardedTo(Assembly sourceAssembly, Assembly destAssembly, Type resolvedType)
-        {
-        }
+        //private static void CheckTypeForwardedTo(Assembly sourceAssembly, Assembly destAssembly, Type resolvedType)
+        //{
+        //}
 
         public Type Bind(string assemblyString, string typeString)
         {
@@ -121,7 +123,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             return this.CrossAppDomainArray?[index];
         }
 
-        internal object Deserialize(BinaryParser parser, bool fCheck)
+        public object Deserialize(BinaryParser parser)
         {
             if (parser == null)
             {
@@ -133,33 +135,33 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this.isSimpleAssembly = this.fh.AssemblyFormat == FormatterAssemblyStyle.Simple;
             //using (SerializationInfo.StartDeserialization())
             //{
-                if (this.fullDeserialization)
-                {
-                    this.objectManager = new ObjectManager(this.surrogates, this.context);
-                    this.objectInfo = new SerializationObjectInfo();
-                }
-                parser.Run();
-                if (this.fullDeserialization)
-                {
-                    this.objectManager.DoFixups();
-                }
-                if (this.TopObject == null)
-                {
-                    throw new SerializationException(RemotingResources.SerializationTopObjectMissing);
-                }
-                if (this.HasSurrogate(this.TopObject.GetType()) && (this.topId != 0))
-                {
-                    this.TopObject = this.objectManager.GetObject(this.topId);
-                }
-                if (this.TopObject is IObjectReference)
-                {
-                    this.TopObject = ((IObjectReference)this.TopObject).GetRealObject(this.context);
-                }
-                if (this.fullDeserialization)
-                {
-                    this.objectManager.RaiseDeserializationEvent();
-                }
-                return this.TopObject;
+            if (this.fullDeserialization)
+            {
+                this.objectManager = new ObjectManager(this.surrogates, this.context);
+                this.objectInfo = new SerializationObjectInfo();
+            }
+            parser.Run();
+            if (this.fullDeserialization)
+            {
+                this.objectManager.DoFixups();
+            }
+            if (this.TopObject == null)
+            {
+                throw new SerializationException(RemotingResources.SerializationTopObjectMissing);
+            }
+            if (this.HasSurrogate(this.TopObject.GetType()) && (this.topId != 0))
+            {
+                this.TopObject = this.objectManager.GetObject(this.topId);
+            }
+            if (TopObject is IObjectReference)
+            {
+                this.TopObject = ((IObjectReference)this.TopObject).GetRealObject(this.context);
+            }
+            if (this.fullDeserialization)
+            {
+                this.objectManager.RaiseDeserializationEvent();
+            }
+            return this.TopObject;
             //}
         }
 
@@ -195,7 +197,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     return null;
                 }
                 Assembly assm = null;
-                AssemblyName name = null;
+                AssemblyName name;
                 try
                 {
                     name = new AssemblyName(assemblyName);
@@ -265,8 +267,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 this.valTypeObjectIdTable = new IntSizedArray();
             }
-            long num = 0L;
-            num = this.valTypeObjectIdTable[(int)objectId];
+            long num = valTypeObjectIdTable[(int)objectId];
             if (num == 0)
             {
                 num = 0x7fffffffL + objectId;
@@ -312,7 +313,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public Type GetType(BinaryAssemblyInfo assemblyInfo, string name)
         {
-            Type typeFromAssembly = null;
+            Type typeFromAssembly;
             if ((this.previousName != null) && ((this.previousName.Length == name.Length) && (this.previousName.Equals(name) && ((this.previousAssemblyString != null) && ((this.previousAssemblyString.Length == assemblyInfo.AssemblyString.Length) && this.previousAssemblyString.Equals(assemblyInfo.AssemblyString))))))
             {
                 typeFromAssembly = this.previousType;
@@ -331,10 +332,10 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     {
                         typeFromAssembly = FormatterServices.GetTypeFromAssembly(assm, name);
                     }
-                    if (typeFromAssembly != null)
-                    {
-                        CheckTypeForwardedTo(assm, typeFromAssembly.Assembly, typeFromAssembly);
-                    }
+                    //if (typeFromAssembly != null)
+                    //{
+                    //    CheckTypeForwardedTo(assm, typeFromAssembly.Assembly, typeFromAssembly);
+                    //}
                 }
                 this.previousAssemblyString = assemblyInfo.AssemblyString;
                 this.previousName = name;
@@ -408,7 +409,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     return;
 
                 case ParseTypeEnum.SerializedStreamHeaderEnd:
-                    this.ParseSerializedStreamHeaderEnd(pr);
+                    this.ParseSerializedStreamHeaderEnd();
                     return;
 
                 case ParseTypeEnum.Envelope:
@@ -422,7 +423,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         private void ParseArray(ParseRecord pr)
         {
-            long num = pr.objectId;
+            //long num = pr.objectId;
             if (pr.arrayTypeEnum == ArrayTypeEnum.Base64)
             {
                 pr.newObj = (pr.value.Length > 0) ? Convert.FromBase64String(pr.value) : Array.Empty<byte>();
@@ -617,7 +618,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
                 else
                 {
-                    object obj4 = (pr.varValue != null) ? pr.varValue : Converter.FromString(pr.value, record.arrayElementTypeCode);
+                    object obj4 = pr.varValue ?? Converter.FromString(pr.value, record.arrayElementTypeCode);
                     if (record.objectA != null)
                     {
                         record.objectA[record.indexMap[0]] = obj4;
@@ -634,7 +635,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 {
                     throw new SerializationException(RemotingResources.SerializationArrayTypeObjectNotInitialized);
                 }
-                object uninitializedObject = null;
+                object uninitializedObject;
                 if (object.ReferenceEquals(pr.dtType, Converter.s_typeofString))
                 {
                     this.ParseString(pr, record);
@@ -642,7 +643,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
                 else if (pr.dtTypeCode != PrimitiveTypeEnum.Invalid)
                 {
-                    uninitializedObject = (pr.varValue != null) ? pr.varValue : Converter.FromString(pr.value, pr.dtTypeCode);
+                    uninitializedObject = pr.varValue ?? Converter.FromString(pr.value, pr.dtTypeCode);
                 }
                 else
                 {
@@ -678,7 +679,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         private void ParseMember(ParseRecord pr)
         {
             ParseRecord onStack = (ParseRecord)this.stack.Peek();
-            string str = (onStack != null) ? onStack.name : null;
+            //string str = (onStack != null) ? onStack.name : null;
             MemberTypeEnum ee = pr.memberTypeEnum;
             if ((ee != MemberTypeEnum.Field) && (ee == MemberTypeEnum.Item))
             {
@@ -736,7 +737,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
                 else if (pr.dtTypeCode != PrimitiveTypeEnum.Invalid)
                 {
-                    object obj3 = (pr.varValue != null) ? pr.varValue : Converter.FromString(pr.value, pr.dtTypeCode);
+                    object obj3 = pr.varValue ?? Converter.FromString(pr.value, pr.dtTypeCode);
                     onStack.objectInfo.AddValue(pr.name, obj3, ref onStack.si, ref onStack.memberData);
                 }
                 else if (pr.arrayTypeEnum == ArrayTypeEnum.Base64)
@@ -888,7 +889,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this.stack.Push(pr);
         }
 
-        private void ParseSerializedStreamHeaderEnd(ParseRecord pr)
+        private void ParseSerializedStreamHeaderEnd(/*ParseRecord pr*/)
         {
             this.stack.Pop();
         }
@@ -911,7 +912,6 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             if (!pr.isRegistered)
             {
                 pr.isRegistered = true;
-                SerializationInfo info = null;
                 long idOfContainingObj = 0L;
                 MemberInfo member = null;
                 int[] arrayIndex = null;
@@ -924,7 +924,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                         member = objectPr.objectInfo.GetMemberInfo(pr.name);
                     }
                 }
-                info = pr.si;
+                SerializationInfo info = pr.si;
                 if (bIsString)
                 {
                     this.objectManager.RegisterString((string)((string)obj), pr.objectId, info, idOfContainingObj, member);

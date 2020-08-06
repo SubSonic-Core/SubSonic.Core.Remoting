@@ -21,7 +21,9 @@ namespace SubSonic.Core.Remoting.Serialization
         {
             if (bytes != null && bytes.Length > 0)
             {
+#pragma warning disable IDE0063 // Use simple 'using' statement
                 using (var stream = new MemoryStream(bytes))
+#pragma warning restore IDE0063 // Use simple 'using' statement
                 {
                     if (formatter.Deserialize(stream) is T success)
                     {
@@ -43,7 +45,9 @@ namespace SubSonic.Core.Remoting.Serialization
 
             if (typeConfigName != null && (bytes != null && bytes.Length > 0))
             {
+#pragma warning disable IDE0063 // Use simple 'using' statement
                 using (var stream = new MemoryStream(bytes))
+#pragma warning restore IDE0063 // Use simple 'using' statement
                 {
                     var obj = formatter.Deserialize(stream);
 
@@ -60,7 +64,9 @@ namespace SubSonic.Core.Remoting.Serialization
                 throw new ArgumentNullException(nameof(obj));
             }
 
-            using(var stream = new MemoryStream())
+#pragma warning disable IDE0063 // Use simple 'using' statement
+            using (var stream = new MemoryStream())
+#pragma warning restore IDE0063 // Use simple 'using' statement
             {
                 formatter.Serialize(stream, obj);
 
@@ -75,7 +81,9 @@ namespace SubSonic.Core.Remoting.Serialization
                 throw new ArgumentNullException(nameof(obj));
             }
 
+#pragma warning disable IDE0063 // Use simple 'using' statement
             using (var stream = new MemoryStream())
+#pragma warning restore IDE0063 // Use simple 'using' statement
             {
                 var type = typeConfigName.ToType();
                 var objT = Convert.ChangeType(obj, type);

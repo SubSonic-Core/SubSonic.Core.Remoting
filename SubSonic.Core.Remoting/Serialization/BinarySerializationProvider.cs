@@ -13,8 +13,11 @@ namespace SubSonic.Core.Remoting.Serialization
         private readonly IFormatter formatter;
 
         public BinarySerializationProvider()
+            : this(new BinaryFormatter()) { }
+
+        public BinarySerializationProvider(IFormatter binaryFormatter)
         {
-            formatter = new BinaryFormatter();
+            formatter = binaryFormatter ?? throw new ArgumentNullException(nameof(binaryFormatter));
         }
 
         public T Deserialize<T>(byte[] bytes)

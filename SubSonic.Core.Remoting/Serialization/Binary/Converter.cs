@@ -55,9 +55,51 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         private static volatile Hashtable s_PrimitiveTypeToArrayTypeLookup;
         private static volatile Hashtable s_PrimitiveTypeToStringLookup;
         private static volatile Hashtable s_PrimitiveTypeToTypeCodeLookup;
-        private static volatile Hashtable s_PrimitiveTypes;
+        private static volatile Hashtable s_TypeCodeToPrimitiveTypeLookup;
 
-        internal static Array CreatePrimitiveArray(PrimitiveTypeEnum code, int length)
+        /// <summary>
+        /// Initialize the look up tables before anyone comes a calling
+        /// </summary>
+        static Converter()
+        {
+            Hashtable
+                PrimitiveTypeToTypeLookup = new Hashtable(),
+                PrimitiveTypeToArrayTypeLookup = new Hashtable(),
+                PrimitiveTypeToStringLookup = new Hashtable(),
+                PrimitiveTypeToTypeCodeLookup = new Hashtable(),
+                TypeCodeToPrimitiveTypeLookup = new Hashtable();
+
+            foreach (string type in Enum.GetNames(typeof(PrimitiveTypeEnum)))
+            {
+                PrimitiveTypeToStringLookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = type;
+
+                if (type.Equals(nameof(PrimitiveTypeEnum.Invalid), StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                Type realType = Type.GetType($"System.{type}");
+
+                PrimitiveTypeToTypeLookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = realType;
+                PrimitiveTypeToTypeCodeLookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = Type.GetTypeCode(realType);
+                TypeCodeToPrimitiveTypeLookup[Type.GetTypeCode(realType)] = Enum.Parse(typeof(PrimitiveTypeEnum), type);
+
+                if (type.Equals(nameof(PrimitiveTypeEnum.Null), StringComparison.Ordinal))
+                {
+                    continue;
+                }
+
+                PrimitiveTypeToArrayTypeLookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = realType.MakeArrayType();
+            }
+
+            s_PrimitiveTypeToTypeLookup = PrimitiveTypeToTypeLookup;
+            s_PrimitiveTypeToArrayTypeLookup = PrimitiveTypeToArrayTypeLookup;
+            s_PrimitiveTypeToStringLookup = PrimitiveTypeToStringLookup;
+            s_PrimitiveTypeToTypeCodeLookup = PrimitiveTypeToTypeCodeLookup;
+            s_TypeCodeToPrimitiveTypeLookup = TypeCodeToPrimitiveTypeLookup;
+        }
+
+        public static Array CreatePrimitiveArray(PrimitiveTypeEnum code, int length)
         {
 #pragma warning disable IDE0066 // Convert switch statement to expression
             switch (code)
@@ -111,104 +153,14 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             return null;
         }
 
-        internal static object FromString(string value, PrimitiveTypeEnum code)
+        public static object FromString(string value, PrimitiveTypeEnum code)
         {
             return ((code != PrimitiveTypeEnum.Invalid) ? Convert.ChangeType(value, ToTypeCode(code), CultureInfo.InvariantCulture) : value);
         }
 
-        private static void InitializePrimitiveTypeToArrayType()
-        {
-            Hashtable lookup = new Hashtable();
-
-            foreach (string type in Enum.GetNames(typeof(PrimitiveTypeEnum)))
-            {
-                if (type.Equals(nameof(PrimitiveTypeEnum.Invalid), StringComparison.Ordinal) ||
-                    type.Equals(nameof(PrimitiveTypeEnum.Null), StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                lookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = Type.GetType($"System.{type}").MakeArrayType();
-            }
-
-            s_PrimitiveTypeToArrayTypeLookup = lookup;
-        }
-
-        private static void InitializeTypeCodeToPrimitiveTypeLookup()
-        {
-            Hashtable lookup = new Hashtable();
-
-            foreach(string type in Enum.GetNames(typeof(PrimitiveTypeEnum)))
-            {
-                if (type.Equals(nameof(PrimitiveTypeEnum.Invalid), StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                Type realType = Type.GetType($"System.{type}");
-
-                lookup[Type.GetTypeCode(realType)] = Enum.Parse(typeof(PrimitiveTypeEnum), type);
-            }            
-
-            s_PrimitiveTypes = lookup;
-        }
-
-        private static void InitializePrimitiveTypeToTypeCodeLookup()
-        {
-            Hashtable lookup = new Hashtable();
-
-            foreach (string type in Enum.GetNames(typeof(PrimitiveTypeEnum)))
-            {
-                if (type.Equals(nameof(PrimitiveTypeEnum.Invalid), StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                Type realType = Type.GetType($"System.{type}");
-
-                lookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = Type.GetTypeCode(realType);
-            }
-
-            s_PrimitiveTypeToTypeCodeLookup = lookup;
-        }
-
-        private static void InitializePrimitiveTypeToTypeLookup()
-        {
-            Hashtable lookup = new Hashtable();
-
-            foreach (string type in Enum.GetNames(typeof(PrimitiveTypeEnum)))
-            {
-                if (type.Equals(nameof(PrimitiveTypeEnum.Invalid), StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                lookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = Type.GetType($"System.{type}");
-            }
-
-            s_PrimitiveTypeToTypeLookup = lookup;
-        }
-
-        private static void InitializePrimitiveTypeToStringLookup()
-        {
-            Hashtable lookup = new Hashtable();
-
-            foreach(string type in Enum.GetNames(typeof(PrimitiveTypeEnum)))
-            {
-                lookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = type;
-            }
-
-            s_PrimitiveTypeToStringLookup = lookup;
-        }
-
-        internal static bool IsPrimitiveArray(Type type, out PrimitiveTypeEnum typeInformation)
+        public static bool IsPrimitiveArray(Type type, out PrimitiveTypeEnum typeInformation)
         {
             bool success = true;
-
-            if (s_PrimitiveTypeToArrayTypeLookup == null)
-            {
-                InitializePrimitiveTypeToArrayType();
-            }
 
             foreach(DictionaryEntry entry in s_PrimitiveTypeToArrayTypeLookup)
             {
@@ -248,10 +200,6 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public static Type ToArrayType(PrimitiveTypeEnum code)
         {
-            if (s_PrimitiveTypeToArrayTypeLookup == null)
-            {
-                InitializePrimitiveTypeToArrayType();
-            }
             return (Type)s_PrimitiveTypeToArrayTypeLookup[code];
         }
 
@@ -262,38 +210,21 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public static string ToComType(PrimitiveTypeEnum code)
         {
-            if (s_PrimitiveTypeToStringLookup == null)
-            {
-                InitializePrimitiveTypeToStringLookup();
-            }
             return (string)s_PrimitiveTypeToStringLookup[code];
         }
 
         public static PrimitiveTypeEnum ToPrimitiveTypeEnum(TypeCode typeCode)
         {
-            if (s_PrimitiveTypes == null)
-            {
-                InitializeTypeCodeToPrimitiveTypeLookup();
-            }
-
-            return (PrimitiveTypeEnum)s_PrimitiveTypes[typeCode];
+            return (PrimitiveTypeEnum)s_TypeCodeToPrimitiveTypeLookup[typeCode];
         }
 
         public static Type ToType(PrimitiveTypeEnum code)
         {
-            if (s_PrimitiveTypeToTypeLookup == null)
-            {
-                InitializePrimitiveTypeToTypeLookup();
-            }
             return (Type)s_PrimitiveTypeToTypeLookup[code];
         }
 
         public static TypeCode ToTypeCode(PrimitiveTypeEnum code)
         {
-            if (s_PrimitiveTypeToTypeCodeLookup == null)
-            {
-                InitializePrimitiveTypeToTypeCodeLookup();
-            }
             return (TypeCode)s_PrimitiveTypeToTypeCodeLookup[code];
         }
 

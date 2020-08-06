@@ -11,11 +11,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
     {
         private int objectInfoId;
         private static int readObjectInfoCounter;
-        private Type objectType;
-        private ObjectManager objectManager;
         private int count;
-        private bool isSi;
-        private bool isTyped;
         private bool isSimpleAssembly;
         private SerializationObjectInfoCache cache;
         private string[] wireMemberNames;
@@ -31,9 +27,17 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
         }
 
+        public bool IsSi { get; private set; }
+
+        public bool IsTyped { get; private set; }
+
+        public ObjectManager ObjectManager { get; private set; }
+
+        public Type ObjectType { get; private set; }
+
         public void AddValue(string name, object value, ref SerializationInfo si, ref object[] memberData)
         {
-            if (this.isSi)
+            if (this.IsSi)
             {
                 si.AddValue(name, value);
             }
@@ -68,16 +72,15 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 return null;
             }
-            if (this.isSi)
+            if (this.IsSi)
             {
                 string text1;
-                if (this.objectType != null)
+                if (this.ObjectType != null)
                 {
-                    text1 = this.objectType.ToString();
+                    text1 = this.ObjectType.ToString();
                 }
                 else
                 {
-                    Type local1 = this.objectType;
                     text1 = null;
                 }
                 throw new SerializationException(RemotingResources.SerializationNoMemberInfo.Format(text1, name));
@@ -87,13 +90,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 int index = this.Position(name);
                 return ((index != -1) ? this.cache.MemberInfos[index] : null);
             }
-            if (this.objectType != null)
+            if (this.ObjectType != null)
             {
-                text2 = this.objectType.ToString();
+                text2 = this.ObjectType.ToString();
             }
             else
             {
-                Type local2 = this.objectType;
                 text2 = null;
             }
             throw new SerializationException(RemotingResources.SerializationNoMemberInfo.Format(text2, name));
@@ -110,7 +112,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         
         public Type[] GetMemberTypes(string[] inMemberNames, Type objectType)
         {
-            if (this.isSi)
+            if (this.IsSi)
             {
                 throw new SerializationException(RemotingResources.Serialization_ISerializableTypes.Format(objectType));
             }
@@ -180,14 +182,14 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 return null;
             }
-            Type type = this.isTyped ? this.cache.MemberTypes[index] : this.memberTypesList[index];
+            Type type = this.IsTyped ? this.cache.MemberTypes[index] : this.memberTypesList[index];
             if (type != null)
             {
                 return type;
             }
-            if (this.objectType != null)
+            if (this.ObjectType != null)
             {
-                text1 = this.objectType.ToString();
+                text1 = this.ObjectType.ToString();
             }
             else
             {
@@ -198,8 +200,8 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public void Init(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerializationObjectInfo serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
-            this.objectType = objectType;
-            this.objectManager = objectManager;
+            this.ObjectType = objectType;
+            this.ObjectManager = objectManager;
             this.context = context;
             this.serObjectInfoInit = serObjectInfoInit;
             this.converter = converter;
@@ -209,8 +211,8 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public void Init(Type objectType, string[] memberNames, Type[] memberTypes, ISurrogateSelector surrogateSelector, StreamingContext context, ObjectManager objectManager, SerializationObjectInfo serObjectInfoInit, IFormatterConverter converter, bool bSimpleAssembly)
         {
-            this.objectType = objectType;
-            this.objectManager = objectManager;
+            this.ObjectType = objectType;
+            this.ObjectManager = objectManager;
             this.wireMemberNames = memberNames;
             this.wireMemberTypes = memberTypes;
             this.context = context;
@@ -219,7 +221,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this.isSimpleAssembly = bSimpleAssembly;
             if (memberTypes != null)
             {
-                this.isTyped = true;
+                this.IsTyped = true;
             }
             if (objectType != null)
             {
@@ -229,7 +231,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public void InitDataStore(ref SerializationInfo si, ref object[] memberData)
         {
-            if (!this.isSi)
+            if (!this.IsSi)
             {
                 if ((memberData == null) && (this.cache != null))
                 {
@@ -238,14 +240,14 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             else if (si == null)
             {
-                si = new SerializationInfo(this.objectType, this.converter);
+                si = new SerializationInfo(this.ObjectType, this.converter);
             }
         }
 
         private void InitMemberInfo()
         {
-            this.cache = new SerializationObjectInfoCache(this.objectType);
-            this.cache.MemberInfos = FormatterServices.GetSerializableMembers(this.objectType, this.context);
+            this.cache = new SerializationObjectInfoCache(this.ObjectType);
+            this.cache.MemberInfos = FormatterServices.GetSerializableMembers(this.ObjectType, this.context);
             this.count = this.cache.MemberInfos.Length;
             this.cache.MemberNames = new string[this.count];
             this.cache.MemberTypes = new Type[this.count];
@@ -254,12 +256,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 this.cache.MemberNames[i] = this.cache.MemberInfos[i].Name;
                 this.cache.MemberTypes[i] = this.GetMemberType(this.cache.MemberInfos[i]);
             }
-            this.isTyped = true;
+            this.IsTyped = true;
         }
 
         private void InitNoMembers()
         {
-            this.cache = new SerializationObjectInfoCache(this.objectType);
+            this.cache = new SerializationObjectInfoCache(this.ObjectType);
         }
 
         private void InitReadConstructor(Type objectType, ISurrogateSelector surrogateSelector, StreamingContext context)
@@ -270,20 +272,19 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             else
             {
-                ISurrogateSelector selector = null;
                 if (surrogateSelector != null)
                 {
-                    this.serializationSurrogate = surrogateSelector.GetSurrogate(objectType, context, out selector);
+                    this.serializationSurrogate = surrogateSelector.GetSurrogate(objectType, context, out _);
                 }
                 if (this.serializationSurrogate != null)
                 {
-                    this.isSi = true;
+                    this.IsSi = true;
                 }
                 else if (!object.ReferenceEquals(objectType, Converter.s_typeofObject) && Converter.s_typeofISerializable.IsAssignableFrom(objectType))
                 {
-                    this.isSi = true;
+                    this.IsSi = true;
                 }
-                if (this.isSi)
+                if (this.IsSi)
                 {
                     this.InitSiRead();
                 }
@@ -308,7 +309,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public void PopulateObjectMembers(object obj, object[] memberData)
         {
-            if (!this.isSi && (memberData != null))
+            if (!this.IsSi && (memberData != null))
             {
                 FormatterServices.PopulateObjectMembers(obj, this.cache.MemberInfos, memberData);
             }
@@ -348,24 +349,24 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public void RecordFixup(long objectId, string name, long idRef)
         {
-            if (this.isSi)
+            if (this.IsSi)
             {
-                if (this.objectManager == null)
+                if (this.ObjectManager == null)
                 {
                     throw new SerializationException(RemotingResources.ThBinaryStreamHasBeenCorrupted);
                 }
-                this.objectManager.RecordDelayedFixup(objectId, name, idRef);
+                this.ObjectManager.RecordDelayedFixup(objectId, name, idRef);
             }
             else
             {
                 int index = this.Position(name);
                 if (index != -1)
                 {
-                    if (this.objectManager == null)
+                    if (this.ObjectManager == null)
                     {
                         throw new SerializationException(RemotingResources.ThBinaryStreamHasBeenCorrupted);
                     }
-                    this.objectManager.RecordFixup(objectId, this.cache.MemberInfos[index], idRef);
+                    this.ObjectManager.RecordFixup(objectId, this.cache.MemberInfos[index], idRef);
                 }
             }
         }

@@ -7,9 +7,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
     public class BinaryObjectWithMapTyped
         : BinaryObjectWithMap
     {
-        BinaryTypeEnum[] binaryTypeEnumArray;
-        protected object[] typeInformationArray;
-        protected int[] memberAssemIds;
+        public BinaryTypeEnum[] BinaryTypeEnumArray { get; set; }
+        public object[] TypeInformationArray { get; set; }
+        public int[] MemberAssemIds { get; set; }
 
         public BinaryObjectWithMapTyped()
             : base() { }
@@ -19,73 +19,73 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public override void Read(BinaryParser input)
         {
-            this.objectId = input.ReadInt32();
-            this.name = input.ReadString();
-            this.numMembers = input.ReadInt32();
-            this.memberNames = new string[this.numMembers];
-            this.binaryTypeEnumArray = new BinaryTypeEnum[this.numMembers];
-            this.typeInformationArray = new object[this.numMembers];
-            this.memberAssemIds = new int[this.numMembers];
-            for (int i = 0; i < this.numMembers; i++)
+            this.ObjectId = input.ReadInt32();
+            this.Name = input.ReadString();
+            this.NumMembers = input.ReadInt32();
+            this.MemberNames = new string[this.NumMembers];
+            this.BinaryTypeEnumArray = new BinaryTypeEnum[this.NumMembers];
+            this.TypeInformationArray = new object[this.NumMembers];
+            this.MemberAssemIds = new int[this.NumMembers];
+            for (int i = 0; i < this.NumMembers; i++)
             {
-                this.memberNames[i] = input.ReadString();
+                this.MemberNames[i] = input.ReadString();
             }
-            for (int j = 0; j < this.numMembers; j++)
+            for (int j = 0; j < this.NumMembers; j++)
             {
-                this.binaryTypeEnumArray[j] = (BinaryTypeEnum)input.ReadByte();
+                this.BinaryTypeEnumArray[j] = (BinaryTypeEnum)input.ReadByte();
             }
-            for (int k = 0; k < this.numMembers; k++)
+            for (int k = 0; k < this.NumMembers; k++)
             {
-                if ((this.binaryTypeEnumArray[k] != BinaryTypeEnum.ObjectUrt) && (this.binaryTypeEnumArray[k] != BinaryTypeEnum.ObjectUser))
+                if ((this.BinaryTypeEnumArray[k] != BinaryTypeEnum.ObjectUrt) && (this.BinaryTypeEnumArray[k] != BinaryTypeEnum.ObjectUser))
                 {
-                    this._typeInformationA[k] = BinaryTypeConverter.ReadTypeInfo(this.binaryTypeEnumArray[k], input, out this.memberAssemIds[k]);
+                    this.TypeInformationArray[k] = BinaryTypeConverter.ReadTypeInfo(this.BinaryTypeEnumArray[k], input, out this.MemberAssemIds[k]);
                 }
                 else
                 {
-                    BinaryTypeConverter.ReadTypeInfo(this._binaryTypeEnumA[k], input, out this._memberAssemIds[k]);
+                    BinaryTypeConverter.ReadTypeInfo(this.BinaryTypeEnumArray[k], input, out this.MemberAssemIds[k]);
                 }
             }
-            if (this._binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapTypedAssemId)
+            if (this.BinaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapTypedAssemId)
             {
-                this._assemId = input.ReadInt32();
+                this.AssemId = input.ReadInt32();
             }
         }
 
-        internal void Set(int objectId, string name, int numMembers, string[] memberNames, BinaryTypeEnum[] binaryTypeEnumA, object[] typeInformationA, int[] memberAssemIds, int assemId)
+        internal void Set(int objectId, string name, int numMembers, string[] memberNames, BinaryTypeEnum[] binaryTypeEnumArray, object[] typeInformationArray, int[] memberAssemIds, int assemId)
         {
-            this._objectId = objectId;
-            this._assemId = assemId;
-            this._name = name;
-            this._numMembers = numMembers;
-            this._memberNames = memberNames;
-            this._binaryTypeEnumA = binaryTypeEnumA;
-            this._typeInformationA = typeInformationA;
-            this._memberAssemIds = memberAssemIds;
-            this._assemId = assemId;
-            this._binaryHeaderEnum = (assemId > 0) ? BinaryHeaderEnum.ObjectWithMapTypedAssemId : BinaryHeaderEnum.ObjectWithMapTyped;
+            this.ObjectId = objectId;
+            this.AssemId = assemId;
+            this.Name = name;
+            this.NumMembers = numMembers;
+            this.MemberNames = memberNames;
+            this.BinaryTypeEnumArray = binaryTypeEnumArray;
+            this.TypeInformationArray = typeInformationArray;
+            this.MemberAssemIds = memberAssemIds;
+            this.AssemId = assemId;
+            this.BinaryHeaderEnum = (assemId > 0) ? BinaryHeaderEnum.ObjectWithMapTypedAssemId : BinaryHeaderEnum.ObjectWithMapTyped;
         }
 
-        public void Write(BinaryFormatterWriter output)
+        public override void Write(BinaryFormatterWriter output)
         {
-            output.WriteByte((byte)this._binaryHeaderEnum);
-            output.WriteInt32(this._objectId);
-            output.WriteString(this._name);
-            output.WriteInt32(this._numMembers);
-            for (int i = 0; i < this._numMembers; i++)
+            output.WriteByte((byte)this.BinaryHeaderEnum);
+            output.WriteInt32(this.ObjectId);
+            output.WriteString(this.Name);
+            output.WriteInt32(this.NumMembers);
+            for (int i = 0; i < this.NumMembers; i++)
             {
-                output.WriteString(this._memberNames[i]);
+                output.WriteString(this.MemberNames[i]);
             }
-            for (int j = 0; j < this._numMembers; j++)
+            for (int j = 0; j < this.NumMembers; j++)
             {
-                output.WriteByte((byte)this._binaryTypeEnumA[j]);
+                output.WriteByte((byte)this.BinaryTypeEnumArray[j]);
             }
-            for (int k = 0; k < this._numMembers; k++)
+            for (int k = 0; k < this.NumMembers; k++)
             {
-                BinaryTypeConverter.WriteTypeInfo(this._binaryTypeEnumA[k], this._typeInformationA[k], this._memberAssemIds[k], output);
+                BinaryTypeConverter.WriteTypeInfo(this.BinaryTypeEnumArray[k], this.TypeInformationArray[k], this.MemberAssemIds[k], output);
             }
-            if (this._assemId > 0)
+            if (this.AssemId > 0)
             {
-                output.WriteInt32(this._assemId);
+                output.WriteInt32(this.AssemId);
             }
         }
     }

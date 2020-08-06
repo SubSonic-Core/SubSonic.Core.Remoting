@@ -133,11 +133,74 @@ namespace SubSonic.Core.Remoting {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Serialization array type is not supported: {0}.
+        /// </summary>
+        public static string SerializationArrayType {
+            get {
+                return ResourceManager.GetString("SerializationArrayType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Array type is not initialized..
+        /// </summary>
+        public static string SerializationArrayTypeObjectNotInitialized {
+            get {
+                return ResourceManager.GetString("SerializationArrayTypeObjectNotInitialized", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Assembly ID: {0}.
+        /// </summary>
+        public static string SerializationAssemblyId {
+            get {
+                return ResourceManager.GetString("SerializationAssemblyId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Assembly not found: {0}.
         /// </summary>
         public static string SerializationAssemblyNotFound {
             get {
                 return ResourceManager.GetString("SerializationAssemblyNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Binary Header Issue: {0} value not mapped.
+        /// </summary>
+        public static string SerializationBinaryHeader {
+            get {
+                return ResourceManager.GetString("SerializationBinaryHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Process Boundary Error: {0} - {1}.
+        /// </summary>
+        public static string SerializationCrossDomainError {
+            get {
+                return ResourceManager.GetString("SerializationCrossDomainError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid Format: {0}.
+        /// </summary>
+        public static string SerializationInvalidFormat {
+            get {
+                return ResourceManager.GetString("SerializationInvalidFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The serialization map is missing: {0}.
+        /// </summary>
+        public static string SerializationMap {
+            get {
+                return ResourceManager.GetString("SerializationMap", resourceCulture);
             }
         }
         
@@ -165,6 +228,123 @@ namespace SubSonic.Core.Remoting {
         public static string SerializationNoMemberInfo {
             get {
                 return ResourceManager.GetString("SerializationNoMemberInfo", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Object ID: {0}.
+        /// </summary>
+        public static string SerializationNoObjectID {
+            get {
+                return ResourceManager.GetString("SerializationNoObjectID", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ObjectTypeEnum: {0}.
+        /// </summary>
+        public static string SerializationObjectTypeEnum {
+            get {
+                return ResourceManager.GetString("SerializationObjectTypeEnum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parse Error: {0}.
+        /// </summary>
+        public static string SerializationParseError {
+            get {
+                return ResourceManager.GetString("SerializationParseError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Read beyond EOF.
+        /// </summary>
+        public static string SerializationReadBeyondEOF {
+            get {
+                return ResourceManager.GetString("SerializationReadBeyondEOF", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This stream has come to pre-mature end..
+        /// </summary>
+        public static string SerializationStreamEnd {
+            get {
+                return ResourceManager.GetString("SerializationStreamEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Top Object Is Missing.
+        /// </summary>
+        public static string SerializationTopObjectMissing {
+            get {
+                return ResourceManager.GetString("SerializationTopObjectMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Object is not initialized: {0}.
+        /// </summary>
+        public static string SerializationTopObjectNotInstanciated {
+            get {
+                return ResourceManager.GetString("SerializationTopObjectNotInstanciated", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type Code Error: {0}.
+        /// </summary>
+        public static string SerializationTypeCode {
+            get {
+                return ResourceManager.GetString("SerializationTypeCode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type was expected..
+        /// </summary>
+        public static string SerializationTypeExpected {
+            get {
+                return ResourceManager.GetString("SerializationTypeExpected", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type Missing: {0}.
+        /// </summary>
+        public static string SerializationTypeMissing {
+            get {
+                return ResourceManager.GetString("SerializationTypeMissing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type Read: {0}.
+        /// </summary>
+        public static string SerializationTypeRead {
+            get {
+                return ResourceManager.GetString("SerializationTypeRead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type Write: {0}.
+        /// </summary>
+        public static string SerializationTypeWrite {
+            get {
+                return ResourceManager.GetString("SerializationTypeWrite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Xml Element Unknown: {0}.
+        /// </summary>
+        public static string SerializationXmlElement {
+            get {
+                return ResourceManager.GetString("SerializationXmlElement", resourceCulture);
             }
         }
         

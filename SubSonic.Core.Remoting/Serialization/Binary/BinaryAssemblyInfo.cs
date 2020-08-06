@@ -6,12 +6,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
     public sealed class BinaryAssemblyInfo
     {
-        private string _assemblyString;
+        public string AssemblyString { get; }
         private Assembly _assembly;
 
         public BinaryAssemblyInfo(string assemblyString)
         {
-            _assemblyString = assemblyString;
+            AssemblyString = assemblyString;
         }
 
         public BinaryAssemblyInfo(string assemblyString, Assembly assembly) 
@@ -24,10 +24,10 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             if (_assembly == null)
             {
-                _assembly = FormatterServices.LoadAssemblyFromStringNoThrow(_assemblyString);
+                _assembly = FormatterServices.LoadAssemblyFromStringNoThrow(AssemblyString);
                 if (_assembly == null)
                 {
-                    throw new SerializationException(RemotingResources.SerializationAssemblyNotFound.Format(_assemblyString));
+                    throw new SerializationException(RemotingResources.SerializationAssemblyNotFound.Format(AssemblyString));
                 }
             }
             return _assembly;

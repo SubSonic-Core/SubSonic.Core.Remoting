@@ -3,30 +3,30 @@
     public class BinaryObject
         : IStreamable
     {
-        protected int objectId;
-        protected int mapId;
-
+        public int ObjectId { get; set; }
+        public int MapId { get; set; }
+        
         public BinaryObject()
         {
         }
 
         public virtual void Read(BinaryParser input)
         {
-            this.objectId = input.ReadInt32();
-            this.mapId = input.ReadInt32();
+            this.ObjectId = input.ReadInt32();
+            this.MapId = input.ReadInt32();
         }
 
         internal void Set(int objectId, int mapId)
         {
-            this.objectId = objectId;
-            this.mapId = mapId;
+            this.ObjectId = objectId;
+            this.MapId = mapId;
         }
 
         public virtual void Write(BinaryFormatterWriter output)
         {
             output.WriteByte(1);
-            output.WriteInt32(this.objectId);
-            output.WriteInt32(this.mapId);
+            output.WriteInt32(this.ObjectId);
+            output.WriteInt32(this.MapId);
         }
     }
 }

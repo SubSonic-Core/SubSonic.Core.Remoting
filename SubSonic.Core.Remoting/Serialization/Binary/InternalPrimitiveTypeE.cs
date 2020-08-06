@@ -6,7 +6,8 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 {
     public enum PrimitiveTypeEnum
     {
-        Invalid,
+        Invalid = -1,
+        Null,
         Boolean,
         Byte,
         Char,
@@ -23,7 +24,6 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         UInt16,
         UInt32,
         UInt64,
-        Null,
         String
     }
 }

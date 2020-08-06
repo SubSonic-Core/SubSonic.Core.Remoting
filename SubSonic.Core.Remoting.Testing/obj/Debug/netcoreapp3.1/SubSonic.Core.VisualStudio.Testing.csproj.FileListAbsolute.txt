@@ -287,3 +287,4 @@ D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testi
 D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\bin\Debug\netcoreapp3.1\SubSonic.Core.Remoting.pdb
 D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\obj\Debug\netcoreapp3.1\SubSonic.Core.VisualStudio.Testing.csproj.CopyComplete
 D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\obj\Debug\netcoreapp3.1\SubSonic.Core.VisualStudio.Testing.genruntimeconfig.cache
+D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\bin\Debug\netcoreapp3.1\ServiceWire.dll

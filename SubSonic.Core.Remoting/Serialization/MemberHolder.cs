@@ -18,8 +18,7 @@ namespace SubSonic.Core.Remoting.Serialization
 
         public override bool Equals(object obj)
         {
-            MemberHolder holder = obj as MemberHolder;
-            return ((holder != null) && (object.ReferenceEquals(holder.memberType, this.memberType) && (holder.context.State == this.context.State)));
+            return ((obj is MemberHolder holder) && (object.ReferenceEquals(holder.memberType, this.memberType) && (holder.context.State == this.context.State)));
         }
 
         public override int GetHashCode()

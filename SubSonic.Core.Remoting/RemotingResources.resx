@@ -138,8 +138,29 @@
   <data name="NotRemotableByReference" xml:space="preserve">
     <value>Type is not remotable by reference: {0}</value>
   </data>
+  <data name="SerializationArrayType" xml:space="preserve">
+    <value>Serialization array type is not supported: {0}</value>
+  </data>
+  <data name="SerializationArrayTypeObjectNotInitialized" xml:space="preserve">
+    <value>Array type is not initialized.</value>
+  </data>
+  <data name="SerializationAssemblyId" xml:space="preserve">
+    <value>Assembly ID: {0}</value>
+  </data>
   <data name="SerializationAssemblyNotFound" xml:space="preserve">
     <value>Assembly not found: {0}</value>
+  </data>
+  <data name="SerializationBinaryHeader" xml:space="preserve">
+    <value>Binary Header Issue: {0} value not mapped</value>
+  </data>
+  <data name="SerializationCrossDomainError" xml:space="preserve">
+    <value>Process Boundary Error: {0} - {1}</value>
+  </data>
+  <data name="SerializationInvalidFormat" xml:space="preserve">
+    <value>Invalid Format: {0}</value>
+  </data>
+  <data name="SerializationMap" xml:space="preserve">
+    <value>The serialization map is missing: {0}</value>
   </data>
   <data name="SerializationMemberInfo" xml:space="preserve">
     <value>Serialization Member Information: {0}</value>
@@ -149,6 +170,45 @@
   </data>
   <data name="SerializationNoMemberInfo" xml:space="preserve">
     <value>No Member Information: {0} {1}</value>
+  </data>
+  <data name="SerializationNoObjectID" xml:space="preserve">
+    <value>No Object ID: {0}</value>
+  </data>
+  <data name="SerializationObjectTypeEnum" xml:space="preserve">
+    <value>ObjectTypeEnum: {0}</value>
+  </data>
+  <data name="SerializationParseError" xml:space="preserve">
+    <value>Parse Error: {0}</value>
+  </data>
+  <data name="SerializationReadBeyondEOF" xml:space="preserve">
+    <value>Read beyond EOF</value>
+  </data>
+  <data name="SerializationStreamEnd" xml:space="preserve">
+    <value>This stream has come to pre-mature end.</value>
+  </data>
+  <data name="SerializationTopObjectMissing" xml:space="preserve">
+    <value>Top Object Is Missing</value>
+  </data>
+  <data name="SerializationTopObjectNotInstanciated" xml:space="preserve">
+    <value>Object is not initialized: {0}</value>
+  </data>
+  <data name="SerializationTypeCode" xml:space="preserve">
+    <value>Type Code Error: {0}</value>
+  </data>
+  <data name="SerializationTypeExpected" xml:space="preserve">
+    <value>Type was expected.</value>
+  </data>
+  <data name="SerializationTypeMissing" xml:space="preserve">
+    <value>Type Missing: {0}</value>
+  </data>
+  <data name="SerializationTypeRead" xml:space="preserve">
+    <value>Type Read: {0}</value>
+  </data>
+  <data name="SerializationTypeWrite" xml:space="preserve">
+    <value>Type Write: {0}</value>
+  </data>
+  <data name="SerializationXmlElement" xml:space="preserve">
+    <value>Xml Element Unknown: {0}</value>
   </data>
   <data name="Serialization_ISerializableTypes" xml:space="preserve">
     <value>Serializable Types: {0}</value>

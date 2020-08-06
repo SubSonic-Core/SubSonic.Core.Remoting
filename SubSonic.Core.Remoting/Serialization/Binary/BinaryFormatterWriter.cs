@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters;
 using System.Text;
 
@@ -42,7 +45,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 {
                     this._objectNull = new ObjectNull();
                 }
-                this._objectNull.SetNullCount(this._consecutiveNullArrayEntryCount);
+                this._objectNull.Set(this._consecutiveNullArrayEntryCount);
                 this._objectNull.Write(this);
                 this._consecutiveNullArrayEntryCount = 0;
             }
@@ -226,7 +229,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         internal void WriteMember(NameInfo memberNameInfo, NameInfo typeNameInfo, object value)
         {
             this.InternalWriteItemNull();
-            InternalPrimitiveTypeE primitiveTypeEnum = typeNameInfo._primitiveTypeEnum;
+            PrimitiveTypeEnum primitiveTypeEnum = typeNameInfo._primitiveTypeEnum;
             if (memberNameInfo._transmitTypeOnMember)
             {
                 if (this._memberPrimitiveTyped == null)
@@ -284,7 +287,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             if (!memberNameInfo._isArrayItem)
             {
-                this._objectNull.SetNullCount(1);
+                this._objectNull.Set(1);
                 this._objectNull.Write(this);
                 this._consecutiveNullArrayEntryCount = 0;
             }
@@ -455,11 +458,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this._binaryArray.Write(this);
             if (Converter.IsWriteAsByteArray(arrayElemTypeNameInfo._primitiveTypeEnum) && (lowerBound == 0))
             {
-                if (arrayElemTypeNameInfo._primitiveTypeEnum == InternalPrimitiveTypeE.Byte)
+                if (arrayElemTypeNameInfo._primitiveTypeEnum == PrimitiveTypeEnum.Byte)
                 {
                     this.WriteBytes((byte[])array);
                 }
-                else if (arrayElemTypeNameInfo._primitiveTypeEnum == InternalPrimitiveTypeE.Char)
+                else if (arrayElemTypeNameInfo._primitiveTypeEnum == PrimitiveTypeEnum.Char)
                 {
                     this.WriteChars((char[])array);
                 }
@@ -495,71 +498,71 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this._dataWriter.Write(value);
         }
 
-        internal void WriteValue(InternalPrimitiveTypeE code, object value)
+        public void WriteValue(PrimitiveTypeEnum code, object value)
         {
             switch (code)
             {
-                case InternalPrimitiveTypeE.Boolean:
+                case PrimitiveTypeEnum.Boolean:
                     this.WriteBoolean(Convert.ToBoolean(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.Byte:
+                case PrimitiveTypeEnum.Byte:
                     this.WriteByte(Convert.ToByte(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.Char:
+                case PrimitiveTypeEnum.Char:
                     this.WriteChar(Convert.ToChar(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.Decimal:
+                case PrimitiveTypeEnum.Decimal:
                     this.WriteDecimal(Convert.ToDecimal(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.Double:
+                case PrimitiveTypeEnum.Double:
                     this.WriteDouble(Convert.ToDouble(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.Int16:
+                case PrimitiveTypeEnum.Int16:
                     this.WriteInt16(Convert.ToInt16(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.Int32:
+                case PrimitiveTypeEnum.Int32:
                     this.WriteInt32(Convert.ToInt32(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.Int64:
+                case PrimitiveTypeEnum.Int64:
                     this.WriteInt64(Convert.ToInt64(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.SByte:
+                case PrimitiveTypeEnum.SByte:
                     this.WriteSByte(Convert.ToSByte(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.Single:
+                case PrimitiveTypeEnum.Single:
                     this.WriteSingle(Convert.ToSingle(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.TimeSpan:
+                case PrimitiveTypeEnum.TimeSpan:
                     this.WriteTimeSpan((TimeSpan)value);
                     return;
 
-                case InternalPrimitiveTypeE.DateTime:
+                case PrimitiveTypeEnum.DateTime:
                     this.WriteDateTime((DateTime)value);
                     return;
 
-                case InternalPrimitiveTypeE.UInt16:
+                case PrimitiveTypeEnum.UInt16:
                     this.WriteUInt16(Convert.ToUInt16(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.UInt32:
+                case PrimitiveTypeEnum.UInt32:
                     this.WriteUInt32(Convert.ToUInt32(value, CultureInfo.InvariantCulture));
                     return;
 
-                case InternalPrimitiveTypeE.UInt64:
+                case PrimitiveTypeEnum.UInt64:
                     this.WriteUInt64(Convert.ToUInt64(value, CultureInfo.InvariantCulture));
                     return;
             }
-            throw new SerializationException(System.SR.Format(System.SR.Serialization_TypeCode, code.ToString()));
+            throw new SerializationException(RemotingResources.SerializationTypeCode.Format(code.ToString()));
         }
 
         private sealed class ObjectMapInfo

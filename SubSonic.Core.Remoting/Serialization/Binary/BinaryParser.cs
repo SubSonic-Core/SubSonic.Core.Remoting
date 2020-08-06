@@ -48,8 +48,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         private static DateTime FromBinaryRaw(long dateData)
         {
-            DateTime time1 = new DateTime(dateData & 0x3fffffffffffffffL);
-            return MemoryMarshal.Cast<long, DateTime>(MemoryMarshal.CreateReadOnlySpan(ref dateData, 1))[0];
+            unsafe
+            {
+                DateTime time1 = new DateTime(dateData & 0x3fffffffffffffffL);
+
+                return MemoryMarshal.Cast<long, DateTime>(new ReadOnlySpan<long>(&dateData, 1))[0];
+            }
         }
 
         private ObjectProgress GetOp()
@@ -71,7 +75,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             if (opPool == null)
             {
-                opPool = new SerStack("opPool");
+                opPool = new SerializationStack("opPool");
             }
             opPool.Push(op);
         }
@@ -89,62 +93,62 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 if (array._assemId < 1)
                 {
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_AssemblyId, array._typeInformation));
+                    throw new SerializationException(RemotingResources.SerializationAssemblyId.Format(array._typeInformation));
                 }
                 assemblyInfo = (BinaryAssemblyInfo)AssemIdToAssemblyTable[array._assemId];
             }
             ObjectProgress op = GetOp();
             ParseRecord pr = op._pr;
-            op._objectTypeEnum = InternalObjectTypeE.Array;
+            op._objectTypeEnum = ObjectTypeEnum.Array;
             op._binaryTypeEnum = array._binaryTypeEnum;
             op._typeInformation = array._typeInformation;
             ObjectProgress progress2 = (ObjectProgress)stack.PeekPeek();
-            if (progress2 == null || array._objectId > 0)
+            if (progress2 == null || array.ObjectId > 0)
             {
                 op._name = "System.Array";
-                pr._parseTypeEnum = InternalParseTypeE.Object;
+                pr.parseTypeEnum = ParseTypeEnum.Object;
                 op._memberValueEnum = MemberValueEnum.Empty;
             }
             else
             {
-                pr._parseTypeEnum = InternalParseTypeE.Member;
-                pr._memberValueEnum = MemberValueEnum.Nested;
+                pr.parseTypeEnum = ParseTypeEnum.Member;
+                pr.memberValueEnum = MemberValueEnum.Nested;
                 op._memberValueEnum = MemberValueEnum.Nested;
-                InternalObjectTypeE ee = progress2._objectTypeEnum;
-                if (ee == InternalObjectTypeE.Object)
+                ObjectTypeEnum ee = progress2._objectTypeEnum;
+                if (ee == ObjectTypeEnum.Object)
                 {
-                    pr._name = progress2._name;
-                    pr._memberTypeEnum = MemberTypeEnum.Field;
+                    pr.name = progress2._name;
+                    pr.memberTypeEnum = MemberTypeEnum.Field;
                     op._memberTypeEnum = MemberTypeEnum.Field;
-                    pr._keyDt = progress2._name;
-                    pr._dtType = progress2._dtType;
+                    pr.keyDt = progress2._name;
+                    pr.dtType = progress2._dtType;
                 }
                 else
                 {
-                    if (ee != InternalObjectTypeE.Array)
+                    if (ee != ObjectTypeEnum.Array)
                     {
-                        throw new SerializationException(System.SR.Format(System.SR.Serialization_ObjectTypeEnum, progress2._objectTypeEnum.ToString()));
+                        throw new SerializationException(RemotingResources.SerializationObjectTypeEnum.Format(progress2._objectTypeEnum.ToString()));
                     }
-                    pr._memberTypeEnum = MemberTypeEnum.Item;
+                    pr.memberTypeEnum = MemberTypeEnum.Item;
                     op._memberTypeEnum = MemberTypeEnum.Item;
                 }
             }
-            pr._objectId = _objectReader.GetId((long)array._objectId);
-            pr._objectPositionEnum = pr._objectId != topId ? headerId <= 0L || pr._objectId != headerId ? ObjectPositionEnum.Child : ObjectPositionEnum.Headers : ObjectPositionEnum.Top;
-            pr._objectTypeEnum = InternalObjectTypeE.Array;
-            BinaryTypeConverter.TypeFromInfo(array._binaryTypeEnum, array._typeInformation, _objectReader, assemblyInfo, out pr._arrayElementTypeCode, out pr._arrayElementTypeString, out pr._arrayElementType, out pr._isArrayVariant);
-            pr._dtTypeCode = PrimitiveTypeEnum.Invalid;
-            pr._rank = array._rank;
-            pr._lengthA = array._lengthA;
-            pr._lowerBoundA = array._lowerBoundA;
+            pr.objectId = objectReader.GetId((long)array.ObjectId);
+            pr.objectPositionEnum = pr.objectId != topId ? headerId <= 0L || pr.objectId != headerId ? ObjectPositionEnum.Child : ObjectPositionEnum.Headers : ObjectPositionEnum.Top;
+            pr.objectTypeEnum = ObjectTypeEnum.Array;
+            BinaryTypeConverter.TypeFromInfo(array._binaryTypeEnum, array._typeInformation, objectReader, assemblyInfo, out pr.arrayElementTypeCode, out pr.arrayElementTypeString, out pr.arrayElementType, out pr.isArrayVariant);
+            pr.dtTypeCode = PrimitiveTypeEnum.Invalid;
+            pr.rank = array._rank;
+            pr.lengthA = array._lengthA;
+            pr.lowerBoundA = array._lowerBoundA;
             bool flag = false;
             switch (array._binaryArrayTypeEnum)
             {
                 case BinaryArrayTypeEnum.Single:
                 case BinaryArrayTypeEnum.SingleOffset:
                     op._numItems = array._lengthA[0];
-                    pr._arrayTypeEnum = InternalArrayTypeE.Single;
-                    if (Converter.IsWriteAsByteArray(pr._arrayElementTypeCode) && array._lowerBoundA[0] == 0)
+                    pr.arrayTypeEnum = ArrayTypeEnum.Single;
+                    if (Converter.IsWriteAsByteArray(pr.arrayElementTypeCode) && array._lowerBoundA[0] == 0)
                     {
                         flag = true;
                         ReadArrayAsBytes(pr);
@@ -154,7 +158,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 case BinaryArrayTypeEnum.Jagged:
                 case BinaryArrayTypeEnum.JaggedOffset:
                     op._numItems = array._lengthA[0];
-                    pr._arrayTypeEnum = InternalArrayTypeE.Jagged;
+                    pr.arrayTypeEnum = ArrayTypeEnum.Jagged;
                     break;
 
                 case BinaryArrayTypeEnum.Rectangular:
@@ -167,7 +171,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                             if (index >= array._rank)
                             {
                                 op._numItems = num;
-                                pr._arrayTypeEnum = InternalArrayTypeE.Rectangular;
+                                pr.arrayTypeEnum = ArrayTypeEnum.Rectangular;
                                 break;
                             }
                             num *= array._lengthA[index];
@@ -176,7 +180,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                         break;
                     }
                 default:
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_ArrayType, array._binaryArrayTypeEnum.ToString()));
+                    throw new SerializationException(RemotingResources.SerializationArrayType.Format(array._binaryArrayTypeEnum.ToString()));
             }
             if (!flag)
             {
@@ -186,29 +190,29 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 PutOp(op);
             }
-            _objectReader.Parse(pr);
+            objectReader.Parse(pr);
             if (flag)
             {
-                pr._parseTypeEnum = InternalParseTypeE.ObjectEnd;
-                _objectReader.Parse(pr);
+                pr.parseTypeEnum = ParseTypeEnum.ObjectEnd;
+                objectReader.Parse(pr);
             }
         }
 
         private void ReadArrayAsBytes(ParseRecord pr)
         {
-            if (pr._arrayElementTypeCode == PrimitiveTypeEnum.Byte)
+            if (pr.arrayElementTypeCode == PrimitiveTypeEnum.Byte)
             {
-                pr._newObj = this.ReadBytes(pr._lengthA[0]);
+                pr.newObj = this.ReadBytes(pr.lengthA[0]);
             }
-            else if (pr._arrayElementTypeCode == PrimitiveTypeEnum.Char)
+            else if (pr.arrayElementTypeCode == PrimitiveTypeEnum.Char)
             {
-                pr._newObj = this.ReadChars(pr._lengthA[0]);
+                pr.newObj = this.ReadChars(pr.lengthA[0]);
             }
             else
             {
-                int num = Converter.TypeLength(pr._arrayElementTypeCode);
-                pr._newObj = Converter.CreatePrimitiveArray(pr._arrayElementTypeCode, pr._lengthA[0]);
-                Array dst = (Array)pr._newObj;
+                int num = Converter.TypeLength(pr.arrayElementTypeCode);
+                pr.newObj = Converter.CreatePrimitiveArray(pr.arrayElementTypeCode, pr.lengthA[0]);
+                Array dst = (Array)pr.newObj;
                 int num2 = 0;
                 if (_byteBuffer == null)
                 {
@@ -257,10 +261,10 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 BinaryCrossAppDomainAssembly assembly2 = new BinaryCrossAppDomainAssembly();
                 assembly2.Read(this);
                 assembly._assemId = assembly2._assemId;
-                assembly._assemblyString = _objectReader.CrossAppDomainArray(assembly2._assemblyIndex) as string;
+                assembly._assemblyString = objectReader.CrossAppDomainArrayAt(assembly2._assemblyIndex) as string;
                 if (assembly._assemblyString == null)
                 {
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_CrossAppDomainError, "String", (int)assembly2._assemblyIndex));
+                    throw new SerializationException(RemotingResources.SerializationCrossDomainError.Format(nameof(String), (int)assembly2._assemblyIndex));
                 }
             }
             AssemIdToAssemblyTable[assembly._assemId] = new BinaryAssemblyInfo(assembly._assemblyString);
@@ -292,7 +296,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 int num = dataReader.Read(byteA, offset, size);
                 if (num == 0)
                 {
-                    throw new EndOfStreamException(System.SR.IO_EOF_ReadBeyondEOF);
+                    throw new EndOfStreamException(RemotingResources.SerializationReadBeyondEOF);
                 }
                 offset += num;
                 size -= num;
@@ -313,7 +317,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             BinaryCrossAppDomainMap map = new BinaryCrossAppDomainMap();
             map.Read(this);
-            object obj2 = _objectReader.CrossAppDomainArray(map._crossAppDomainArrayIndex);
+            object obj2 = objectReader.CrossAppDomainArrayAt(map._crossAppDomainArrayIndex);
             BinaryObjectWithMap record = obj2 as BinaryObjectWithMap;
             if (record != null)
             {
@@ -324,7 +328,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 BinaryObjectWithMapTyped typed = obj2 as BinaryObjectWithMapTyped;
                 if (typed == null)
                 {
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_CrossAppDomainError, "BinaryObjectMap", obj2));
+                    throw new SerializationException(RemotingResources.SerializationCrossDomainError.Format("BinaryObjectMap", obj2));
                 }
                 ReadObjectWithMapTyped(typed);
             }
@@ -371,38 +375,38 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 _memberPrimitiveTyped = new MemberPrimitiveTyped();
             }
             _memberPrimitiveTyped.Read(this);
-            PRs._objectTypeEnum = InternalObjectTypeE.Object;
+            PRs.objectTypeEnum = ObjectTypeEnum.Object;
             ObjectProgress progress = (ObjectProgress)stack.Peek();
             PRs.Init();
-            PRs._varValue = _memberPrimitiveTyped._value;
-            PRs._keyDt = Converter.ToComType(_memberPrimitiveTyped._primitiveTypeEnum);
-            PRs._dtType = Converter.ToType(_memberPrimitiveTyped._primitiveTypeEnum);
-            PRs._dtTypeCode = _memberPrimitiveTyped._primitiveTypeEnum;
+            PRs.varValue = _memberPrimitiveTyped.Value;
+            PRs.keyDt = Converter.ToComType(_memberPrimitiveTyped.PrimitiveTypeEnum);
+            PRs.dtType = Converter.ToType(_memberPrimitiveTyped.PrimitiveTypeEnum);
+            PRs.dtTypeCode = _memberPrimitiveTyped.PrimitiveTypeEnum;
             if (progress == null)
             {
-                PRs._parseTypeEnum = InternalParseTypeE.Object;
-                PRs._name = "System.Variant";
+                PRs.parseTypeEnum = ParseTypeEnum.Object;
+                PRs.name = "System.Variant";
             }
             else
             {
-                PRs._parseTypeEnum = InternalParseTypeE.Member;
-                PRs._memberValueEnum = MemberValueEnum.InlineValue;
-                InternalObjectTypeE ee = progress._objectTypeEnum;
-                if (ee == InternalObjectTypeE.Object)
+                PRs.parseTypeEnum = ParseTypeEnum.Member;
+                PRs.memberValueEnum = MemberValueEnum.InlineValue;
+                ObjectTypeEnum ee = progress._objectTypeEnum;
+                if (ee == ObjectTypeEnum.Object)
                 {
-                    PRs._name = progress._name;
-                    PRs._memberTypeEnum = MemberTypeEnum.Field;
+                    PRs.name = progress._name;
+                    PRs.memberTypeEnum = MemberTypeEnum.Field;
                 }
                 else
                 {
-                    if (ee != InternalObjectTypeE.Array)
+                    if (ee != ObjectTypeEnum.Array)
                     {
-                        throw new SerializationException(System.SR.Format(System.SR.Serialization_ObjectTypeEnum, progress._objectTypeEnum.ToString()));
+                        throw new SerializationException(RemotingResources.SerializationObjectTypeEnum.Format(progress._objectTypeEnum.ToString()));
                     }
-                    PRs._memberTypeEnum = MemberTypeEnum.Item;
+                    PRs.memberTypeEnum = MemberTypeEnum.Item;
                 }
             }
-            _objectReader.Parse(PRs);
+            objectReader.Parse(PRs);
         }
 
         private void ReadMemberPrimitiveUnTyped()
@@ -415,21 +419,21 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             memberPrimitiveUnTyped.Set((PrimitiveTypeEnum)expectedTypeInformation);
             memberPrimitiveUnTyped.Read(this);
             PRs.Init();
-            PRs._varValue = memberPrimitiveUnTyped._value;
-            PRs._dtTypeCode = (PrimitiveTypeEnum)expectedTypeInformation;
-            PRs._dtType = Converter.ToType(PRs._dtTypeCode);
-            PRs._parseTypeEnum = InternalParseTypeE.Member;
-            PRs._memberValueEnum = MemberValueEnum.InlineValue;
-            if (progress._objectTypeEnum != InternalObjectTypeE.Object)
+            PRs.varValue = memberPrimitiveUnTyped._value;
+            PRs.dtTypeCode = (PrimitiveTypeEnum)expectedTypeInformation;
+            PRs.dtType = Converter.ToType(PRs.dtTypeCode);
+            PRs.parseTypeEnum = ParseTypeEnum.Member;
+            PRs.memberValueEnum = MemberValueEnum.InlineValue;
+            if (progress._objectTypeEnum != ObjectTypeEnum.Object)
             {
-                PRs._memberTypeEnum = MemberTypeEnum.Item;
+                PRs.memberTypeEnum = MemberTypeEnum.Item;
             }
             else
             {
-                PRs._memberTypeEnum = MemberTypeEnum.Field;
-                PRs._name = progress._name;
+                PRs.memberTypeEnum = MemberTypeEnum.Field;
+                PRs.name = progress._name;
             }
-            _objectReader.Parse(PRs);
+            objectReader.Parse(PRs);
         }
 
         private void ReadMemberReference()
@@ -441,20 +445,20 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             _memberReference.Read(this);
             ObjectProgress progress = (ObjectProgress)stack.Peek();
             PRs.Init();
-            PRs._idRef = _objectReader.GetId((long)_memberReference._idRef);
-            PRs._parseTypeEnum = InternalParseTypeE.Member;
-            PRs._memberValueEnum = MemberValueEnum.Reference;
-            if (progress._objectTypeEnum != InternalObjectTypeE.Object)
+            PRs.idRef = objectReader.GetId((long)_memberReference._idRef);
+            PRs.parseTypeEnum = ParseTypeEnum.Member;
+            PRs.memberValueEnum = MemberValueEnum.Reference;
+            if (progress._objectTypeEnum != ObjectTypeEnum.Object)
             {
-                PRs._memberTypeEnum = MemberTypeEnum.Item;
+                PRs.memberTypeEnum = MemberTypeEnum.Item;
             }
             else
             {
-                PRs._memberTypeEnum = MemberTypeEnum.Field;
-                PRs._name = progress._name;
-                PRs._dtType = progress._dtType;
+                PRs.memberTypeEnum = MemberTypeEnum.Field;
+                PRs.name = progress._name;
+                PRs.dtType = progress._dtType;
             }
-            _objectReader.Parse(PRs);
+            objectReader.Parse(PRs);
         }
 
         private void ReadMessageEnd()
@@ -466,7 +470,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             _messageEnd.Read(this);
             if (!stack.IsEmpty())
             {
-                throw new SerializationException(System.SR.Serialization_StreamEnd);
+                throw new SerializationException(RemotingResources.SerializationStreamEnd);
             }
         }
 
@@ -477,15 +481,15 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 _binaryObject = new BinaryObject();
             }
             _binaryObject.Read(this);
-            ObjectMap map = (ObjectMap)ObjectMapIdTable[_binaryObject.mapId];
+            ObjectMap map = (ObjectMap)ObjectMapIdTable[_binaryObject.MapId];
             if (map == null)
             {
-                throw new SerializationException(System.SR.Format(System.SR.Serialization_Map, (int)_binaryObject.mapId));
+                throw new SerializationException(RemotingResources.SerializationMap.Format((int)_binaryObject.MapId));
             }
             ObjectProgress op = GetOp();
             ParseRecord pr = op._pr;
             stack.Push(op);
-            op._objectTypeEnum = InternalObjectTypeE.Object;
+            op._objectTypeEnum = ObjectTypeEnum.Object;
             op._binaryTypeEnumA = map._binaryTypeEnumA;
             op._memberNames = map._memberNames;
             op._memberTypes = map._memberTypes;
@@ -495,42 +499,42 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             if (progress2 == null || progress2._isInitial)
             {
                 op._name = map._objectName;
-                pr._parseTypeEnum = InternalParseTypeE.Object;
+                pr.parseTypeEnum = ParseTypeEnum.Object;
                 op._memberValueEnum = MemberValueEnum.Empty;
             }
             else
             {
-                pr._parseTypeEnum = InternalParseTypeE.Member;
-                pr._memberValueEnum = MemberValueEnum.Nested;
+                pr.parseTypeEnum = ParseTypeEnum.Member;
+                pr.memberValueEnum = MemberValueEnum.Nested;
                 op._memberValueEnum = MemberValueEnum.Nested;
-                InternalObjectTypeE ee = progress2._objectTypeEnum;
-                if (ee == InternalObjectTypeE.Object)
+                ObjectTypeEnum ee = progress2._objectTypeEnum;
+                if (ee == ObjectTypeEnum.Object)
                 {
-                    pr._name = progress2._name;
-                    pr._memberTypeEnum = MemberTypeEnum.Field;
+                    pr.name = progress2._name;
+                    pr.memberTypeEnum = MemberTypeEnum.Field;
                     op._memberTypeEnum = MemberTypeEnum.Field;
                 }
                 else
                 {
-                    if (ee != InternalObjectTypeE.Array)
+                    if (ee != ObjectTypeEnum.Array)
                     {
-                        throw new SerializationException(System.SR.Format(System.SR.Serialization_Map, progress2._objectTypeEnum.ToString()));
+                        throw new SerializationException(RemotingResources.SerializationMap.Format(progress2._objectTypeEnum.ToString()));
                     }
-                    pr._memberTypeEnum = MemberTypeEnum.Item;
+                    pr.memberTypeEnum = MemberTypeEnum.Item;
                     op._memberTypeEnum = MemberTypeEnum.Item;
                 }
             }
-            pr._objectId = _objectReader.GetId((long)_binaryObject.objectId);
-            pr._objectInfo = map.CreateObjectInfo(ref pr._si, ref pr._memberData);
-            if (pr._objectId == topId)
+            pr.objectId = objectReader.GetId((long)_binaryObject.ObjectId);
+            pr.objectInfo = map.CreateObjectInfo(ref pr.si, ref pr.memberData);
+            if (pr.objectId == topId)
             {
-                pr._objectPositionEnum = ObjectPositionEnum.Top;
+                pr.objectPositionEnum = ObjectPositionEnum.Top;
             }
-            pr._objectTypeEnum = InternalObjectTypeE.Object;
-            pr._keyDt = map._objectName;
-            pr._dtType = map._objectType;
-            pr._dtTypeCode = PrimitiveTypeEnum.Invalid;
-            _objectReader.Parse(pr);
+            pr.objectTypeEnum = ObjectTypeEnum.Object;
+            pr.keyDt = map._objectName;
+            pr.dtType = map._objectType;
+            pr.dtTypeCode = PrimitiveTypeEnum.Invalid;
+            objectReader.Parse(pr);
         }
 
         private void ReadObjectNull(BinaryHeaderEnum binaryHeaderEnum)
@@ -539,24 +543,25 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 _objectNull = new ObjectNull();
             }
-            _objectNull.Read(this, binaryHeaderEnum);
+            _objectNull.Set(_objectNull.NullCount, binaryHeaderEnum);
+            _objectNull.Read(this);
             ObjectProgress progress = (ObjectProgress)stack.Peek();
             PRs.Init();
-            PRs._parseTypeEnum = InternalParseTypeE.Member;
-            PRs._memberValueEnum = MemberValueEnum.Null;
-            if (progress._objectTypeEnum == InternalObjectTypeE.Object)
+            PRs.parseTypeEnum = ParseTypeEnum.Member;
+            PRs.memberValueEnum = MemberValueEnum.Null;
+            if (progress._objectTypeEnum == ObjectTypeEnum.Object)
             {
-                PRs._memberTypeEnum = MemberTypeEnum.Field;
-                PRs._name = progress._name;
-                PRs._dtType = progress._dtType;
+                PRs.memberTypeEnum = MemberTypeEnum.Field;
+                PRs.name = progress._name;
+                PRs.dtType = progress._dtType;
             }
             else
             {
-                PRs._memberTypeEnum = MemberTypeEnum.Item;
-                PRs._consecutiveNullArrayEntryCount = _objectNull._nullCount;
-                progress.ArrayCountIncrement(_objectNull._nullCount - 1);
+                PRs.memberTypeEnum = MemberTypeEnum.Item;
+                PRs.consecutiveNullArrayEntryCount = _objectNull.NullCount;
+                progress.ArrayCountIncrement(_objectNull.NullCount - 1);
             }
-            _objectReader.Parse(PRs);
+            objectReader.Parse(PRs);
         }
 
         private void ReadObjectString(BinaryHeaderEnum binaryHeaderEnum)
@@ -576,52 +581,52 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     _crossAppDomainString = new BinaryCrossAppDomainString();
                 }
                 _crossAppDomainString.Read(this);
-                _objectString._value = _objectReader.CrossAppDomainArray(_crossAppDomainString._value) as string;
-                if (_objectString._value == null)
+                _objectString.Value = objectReader.CrossAppDomainArrayAt(_crossAppDomainString._value) as string;
+                if (_objectString.Value == null)
                 {
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_CrossAppDomainError, "String", (int)_crossAppDomainString._value));
+                    throw new SerializationException(RemotingResources.SerializationCrossDomainError.Format(nameof(String), (int)_crossAppDomainString._value));
                 }
-                _objectString._objectId = _crossAppDomainString._objectId;
+                _objectString.ObjectId = _crossAppDomainString._objectId;
             }
             PRs.Init();
-            PRs._parseTypeEnum = InternalParseTypeE.Object;
-            PRs._objectId = _objectReader.GetId((long)_objectString._objectId);
-            if (PRs._objectId == topId)
+            PRs.parseTypeEnum = ParseTypeEnum.Object;
+            PRs.objectId = objectReader.GetId((long)_objectString.ObjectId);
+            if (PRs.objectId == topId)
             {
-                PRs._objectPositionEnum = ObjectPositionEnum.Top;
+                PRs.objectPositionEnum = ObjectPositionEnum.Top;
             }
-            PRs._objectTypeEnum = InternalObjectTypeE.Object;
+            PRs.objectTypeEnum = ObjectTypeEnum.Object;
             ObjectProgress progress = (ObjectProgress)stack.Peek();
-            PRs._value = _objectString._value;
-            PRs._keyDt = "System.String";
-            PRs._dtType = Converter.s_typeofString;
-            PRs._dtTypeCode = PrimitiveTypeEnum.Invalid;
-            PRs._varValue = _objectString._value;
+            PRs.value = _objectString.Value;
+            PRs.keyDt = "System.String";
+            PRs.dtType = Converter.s_typeofString;
+            PRs.dtTypeCode = PrimitiveTypeEnum.Invalid;
+            PRs.varValue = _objectString.Value;
             if (progress == null)
             {
-                PRs._parseTypeEnum = InternalParseTypeE.Object;
-                PRs._name = "System.String";
+                PRs.parseTypeEnum = ParseTypeEnum.Object;
+                PRs.name = "System.String";
             }
             else
             {
-                PRs._parseTypeEnum = InternalParseTypeE.Member;
-                PRs._memberValueEnum = MemberValueEnum.InlineValue;
-                InternalObjectTypeE ee = progress._objectTypeEnum;
-                if (ee == InternalObjectTypeE.Object)
+                PRs.parseTypeEnum = ParseTypeEnum.Member;
+                PRs.memberValueEnum = MemberValueEnum.InlineValue;
+                ObjectTypeEnum ee = progress._objectTypeEnum;
+                if (ee == ObjectTypeEnum.Object)
                 {
-                    PRs._name = progress._name;
-                    PRs._memberTypeEnum = MemberTypeEnum.Field;
+                    PRs.name = progress._name;
+                    PRs.memberTypeEnum = MemberTypeEnum.Field;
                 }
                 else
                 {
-                    if (ee != InternalObjectTypeE.Array)
+                    if (ee != ObjectTypeEnum.Array)
                     {
-                        throw new SerializationException(System.SR.Format(System.SR.Serialization_ObjectTypeEnum, progress._objectTypeEnum.ToString()));
+                        throw new SerializationException(RemotingResources.SerializationObjectTypeEnum.Format(progress._objectTypeEnum.ToString()));
                     }
-                    PRs._memberTypeEnum = MemberTypeEnum.Item;
+                    PRs.memberTypeEnum = MemberTypeEnum.Item;
                 }
             }
-            _objectReader.Parse(PRs);
+            objectReader.Parse(PRs);
         }
 
         internal void ReadObjectWithMap(BinaryHeaderEnum binaryHeaderEnum)
@@ -632,7 +637,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             else
             {
-                _bowm.binaryHeaderEnum = binaryHeaderEnum;
+                _bowm.BinaryHeaderEnum = binaryHeaderEnum;
             }
             _bowm.Read(this);
             ReadObjectWithMap(_bowm);
@@ -644,29 +649,29 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             ObjectProgress op = GetOp();
             ParseRecord pr = op._pr;
             stack.Push(op);
-            if (record.binaryHeaderEnum != BinaryHeaderEnum.ObjectWithMapAssemId)
+            if (record.BinaryHeaderEnum != BinaryHeaderEnum.ObjectWithMapAssemId)
             {
-                if (record.binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMap)
+                if (record.BinaryHeaderEnum == BinaryHeaderEnum.ObjectWithMap)
                 {
                     assemblyInfo = SystemAssemblyInfo;
                 }
             }
             else
             {
-                if (record.assemId < 1)
+                if (record.AssemId < 1)
                 {
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_Assembly, record.name));
+                    throw new SerializationException(RemotingResources.SerializationAssemblyNotFound.Format(record.Name));
                 }
-                assemblyInfo = (BinaryAssemblyInfo)AssemIdToAssemblyTable[record.assemId];
+                assemblyInfo = (BinaryAssemblyInfo)AssemIdToAssemblyTable[record.AssemId];
                 if (assemblyInfo == null)
                 {
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_Assembly, ((int)record.assemId).ToString() + " " + record.name));
+                    throw new SerializationException(RemotingResources.SerializationAssemblyNotFound.Format(record.AssemId.ToString() + " " + record.Name));
                 }
             }
-            Type objectType = _objectReader.GetType(assemblyInfo, record.name);
-            ObjectMap map = ObjectMap.Create(record.name, objectType, record.memberNames, _objectReader, record._objectId, assemblyInfo);
-            ObjectMapIdTable[record._objectId] = map;
-            op._objectTypeEnum = InternalObjectTypeE.Object;
+            Type objectType = objectReader.GetType(assemblyInfo, record.Name);
+            ObjectMap map = ObjectMap.Create(record.Name, objectType, record.MemberNames, objectReader, record.ObjectId, assemblyInfo);
+            ObjectMapIdTable[record.ObjectId] = map;
+            op._objectTypeEnum = ObjectTypeEnum.Object;
             op._binaryTypeEnumA = map._binaryTypeEnumA;
             op._typeInformationA = map._typeInformationA;
             op._memberLength = op._binaryTypeEnumA.Length;
@@ -675,43 +680,43 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             ObjectProgress progress2 = (ObjectProgress)stack.PeekPeek();
             if (progress2 == null || progress2._isInitial)
             {
-                op._name = record.name;
-                pr._parseTypeEnum = InternalParseTypeE.Object;
+                op._name = record.Name;
+                pr.parseTypeEnum = ParseTypeEnum.Object;
                 op._memberValueEnum = MemberValueEnum.Empty;
             }
             else
             {
-                pr._parseTypeEnum = InternalParseTypeE.Member;
-                pr._memberValueEnum = MemberValueEnum.Nested;
+                pr.parseTypeEnum = ParseTypeEnum.Member;
+                pr.memberValueEnum = MemberValueEnum.Nested;
                 op._memberValueEnum = MemberValueEnum.Nested;
-                InternalObjectTypeE ee = progress2._objectTypeEnum;
-                if (ee == InternalObjectTypeE.Object)
+                ObjectTypeEnum ee = progress2._objectTypeEnum;
+                if (ee == ObjectTypeEnum.Object)
                 {
-                    pr._name = progress2._name;
-                    pr._memberTypeEnum = MemberTypeEnum.Field;
+                    pr.name = progress2._name;
+                    pr.memberTypeEnum = MemberTypeEnum.Field;
                     op._memberTypeEnum = MemberTypeEnum.Field;
                 }
                 else
                 {
-                    if (ee != InternalObjectTypeE.Array)
+                    if (ee != ObjectTypeEnum.Array)
                     {
-                        throw new SerializationException(System.SR.Format(System.SR.Serialization_ObjectTypeEnum, progress2._objectTypeEnum.ToString()));
+                        throw new SerializationException(RemotingResources.SerializationObjectTypeEnum.Format(progress2._objectTypeEnum.ToString()));
                     }
-                    pr._memberTypeEnum = MemberTypeEnum.Item;
+                    pr.memberTypeEnum = MemberTypeEnum.Item;
                     op._memberTypeEnum = MemberTypeEnum.Field;
                 }
             }
-            pr._objectTypeEnum = InternalObjectTypeE.Object;
-            pr._objectId = _objectReader.GetId((long)record._objectId);
-            pr._objectInfo = map.CreateObjectInfo(ref pr._si, ref pr._memberData);
-            if (pr._objectId == topId)
+            pr.objectTypeEnum = ObjectTypeEnum.Object;
+            pr.objectId = objectReader.GetId((long)record.ObjectId);
+            pr.objectInfo = map.CreateObjectInfo(ref pr.si, ref pr.memberData);
+            if (pr.objectId == topId)
             {
-                pr._objectPositionEnum = ObjectPositionEnum.Top;
+                pr.objectPositionEnum = ObjectPositionEnum.Top;
             }
-            pr._keyDt = record.name;
-            pr._dtType = map._objectType;
-            pr._dtTypeCode = PrimitiveTypeEnum.Invalid;
-            _objectReader.Parse(pr);
+            pr.keyDt = record.Name;
+            pr.dtType = map._objectType;
+            pr.dtTypeCode = PrimitiveTypeEnum.Invalid;
+            objectReader.Parse(pr);
         }
 
         internal void ReadObjectWithMapTyped(BinaryHeaderEnum binaryHeaderEnum)
@@ -722,7 +727,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             else
             {
-                _bowmt._binaryHeaderEnum = binaryHeaderEnum;
+                _bowmt.BinaryHeaderEnum = binaryHeaderEnum;
             }
             _bowmt.Read(this);
             ReadObjectWithMapTyped(_bowmt);
@@ -734,28 +739,28 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             ObjectProgress op = GetOp();
             ParseRecord pr = op._pr;
             stack.Push(op);
-            if (record._binaryHeaderEnum != BinaryHeaderEnum.ObjectWithMapTypedAssemId)
+            if (record.BinaryHeaderEnum != BinaryHeaderEnum.ObjectWithMapTypedAssemId)
             {
-                if (record._binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapTyped)
+                if (record.BinaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapTyped)
                 {
                     assemblyInfo = SystemAssemblyInfo;
                 }
             }
             else
             {
-                if (record._assemId < 1)
+                if (record.AssemId < 1)
                 {
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_AssemblyId, record._name));
+                    throw new SerializationException(RemotingResources.SerializationAssemblyId.Format(record.Name));
                 }
-                assemblyInfo = (BinaryAssemblyInfo)AssemIdToAssemblyTable[record._assemId];
+                assemblyInfo = (BinaryAssemblyInfo)AssemIdToAssemblyTable[record.AssemId];
                 if (assemblyInfo == null)
                 {
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_AssemblyId, ((int)record._assemId).ToString() + " " + record._name));
+                    throw new SerializationException(RemotingResources.SerializationAssemblyId.Format(((int)record.AssemId).ToString() + " " + record.Name));
                 }
             }
-            ObjectMap map = ObjectMap.Create(record._name, record._memberNames, record._binaryTypeEnumA, record._typeInformationA, record._memberAssemIds, _objectReader, record._objectId, assemblyInfo, AssemIdToAssemblyTable);
-            ObjectMapIdTable[record._objectId] = map;
-            op._objectTypeEnum = InternalObjectTypeE.Object;
+            ObjectMap map = ObjectMap.Create(record.Name, record.MemberNames, record.BinaryTypeEnumArray, record.TypeInformationArray, record.MemberAssemIds, objectReader, record.ObjectId, assemblyInfo, AssemIdToAssemblyTable);
+            ObjectMapIdTable[record.ObjectId] = map;
+            op._objectTypeEnum = ObjectTypeEnum.Object;
             op._binaryTypeEnumA = map._binaryTypeEnumA;
             op._typeInformationA = map._typeInformationA;
             op._memberLength = op._binaryTypeEnumA.Length;
@@ -764,43 +769,43 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             ObjectProgress progress2 = (ObjectProgress)stack.PeekPeek();
             if (progress2 == null || progress2._isInitial)
             {
-                op._name = record._name;
-                pr._parseTypeEnum = InternalParseTypeE.Object;
+                op._name = record.Name;
+                pr.parseTypeEnum = ParseTypeEnum.Object;
                 op._memberValueEnum = MemberValueEnum.Empty;
             }
             else
             {
-                pr._parseTypeEnum = InternalParseTypeE.Member;
-                pr._memberValueEnum = MemberValueEnum.Nested;
+                pr.parseTypeEnum = ParseTypeEnum.Member;
+                pr.memberValueEnum = MemberValueEnum.Nested;
                 op._memberValueEnum = MemberValueEnum.Nested;
-                InternalObjectTypeE ee = progress2._objectTypeEnum;
-                if (ee == InternalObjectTypeE.Object)
+                ObjectTypeEnum ee = progress2._objectTypeEnum;
+                if (ee == ObjectTypeEnum.Object)
                 {
-                    pr._name = progress2._name;
-                    pr._memberTypeEnum = MemberTypeEnum.Field;
+                    pr.name = progress2._name;
+                    pr.memberTypeEnum = MemberTypeEnum.Field;
                     op._memberTypeEnum = MemberTypeEnum.Field;
                 }
                 else
                 {
-                    if (ee != InternalObjectTypeE.Array)
+                    if (ee != ObjectTypeEnum.Array)
                     {
-                        throw new SerializationException(System.SR.Format(System.SR.Serialization_ObjectTypeEnum, progress2._objectTypeEnum.ToString()));
+                        throw new SerializationException(RemotingResources.SerializationObjectTypeEnum.Format(progress2._objectTypeEnum.ToString()));
                     }
-                    pr._memberTypeEnum = MemberTypeEnum.Item;
+                    pr.memberTypeEnum = MemberTypeEnum.Item;
                     op._memberTypeEnum = MemberTypeEnum.Item;
                 }
             }
-            pr._objectTypeEnum = InternalObjectTypeE.Object;
-            pr._objectInfo = map.CreateObjectInfo(ref pr._si, ref pr._memberData);
-            pr._objectId = _objectReader.GetId((long)record._objectId);
-            if (pr._objectId == topId)
+            pr.objectTypeEnum = ObjectTypeEnum.Object;
+            pr.objectInfo = map.CreateObjectInfo(ref pr.si, ref pr.memberData);
+            pr.objectId = objectReader.GetId((long)record.ObjectId);
+            if (pr.objectId == topId)
             {
-                pr._objectPositionEnum = ObjectPositionEnum.Top;
+                pr.objectPositionEnum = ObjectPositionEnum.Top;
             }
-            pr._keyDt = record._name;
-            pr._dtType = map._objectType;
-            pr._dtTypeCode = PrimitiveTypeEnum.Invalid;
-            _objectReader.Parse(pr);
+            pr.keyDt = record.Name;
+            pr.dtType = map._objectType;
+            pr.dtTypeCode = PrimitiveTypeEnum.Invalid;
+            objectReader.Parse(pr);
         }
 
         internal sbyte ReadSByte()
@@ -812,8 +817,8 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             SerializationHeaderRecord record = new SerializationHeaderRecord();
             record.Read(this);
-            topId = record._topId > 0 ? _objectReader.GetId((long)record._topId) : (long)record._topId;
-            headerId = record._headerId > 0 ? _objectReader.GetId((long)record._headerId) : (long)record._headerId;
+            topId = record._topId > 0 ? objectReader.GetId((long)record._topId) : (long)record._topId;
+            headerId = record._headerId > 0 ? objectReader.GetId((long)record._headerId) : (long)record._headerId;
         }
 
         internal float ReadSingle()
@@ -912,7 +917,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     break;
 
                 default:
-                    throw new SerializationException(System.SR.Format(System.SR.Serialization_TypeCode, code.ToString()));
+                    throw new SerializationException(RemotingResources.SerializationTypeCode.Format(code.ToString()));
             }
             return obj2;
         }
@@ -934,9 +939,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     }
                     else
                     {
-                        if (enum3 - (BinaryTypeEnum)1 > BinaryTypeEnum.StringArray)
+                        if (enum3 - (BinaryTypeEnum)1 > (int)BinaryTypeEnum.StringArray)
                         {
-                            throw new SerializationException(System.SR.Serialization_TypeExpected);
+                            throw new SerializationException(RemotingResources.SerializationTypeExpected);
                         }
                         byte num = dataReader.ReadByte();
                         binaryHeaderEnum = (BinaryHeaderEnum)num;
@@ -998,7 +1003,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                                 break;
 
                             default:
-                                throw new SerializationException(System.SR.Format(System.SR.Serialization_BinaryHeader, num));
+                                throw new SerializationException(RemotingResources.SerializationBinaryHeader.Format(num));
                         }
                     }
                     if (binaryHeaderEnum != BinaryHeaderEnum.Assembly)
@@ -1022,17 +1027,17 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                                 PRs.Init();
                                 if (op._memberValueEnum == MemberValueEnum.Nested)
                                 {
-                                    PRs._parseTypeEnum = InternalParseTypeE.MemberEnd;
-                                    PRs._memberTypeEnum = op._memberTypeEnum;
-                                    PRs._memberValueEnum = op._memberValueEnum;
-                                    _objectReader.Parse(PRs);
+                                    PRs.parseTypeEnum = ParseTypeEnum.MemberEnd;
+                                    PRs.memberTypeEnum = op._memberTypeEnum;
+                                    PRs.memberValueEnum = op._memberValueEnum;
+                                    objectReader.Parse(PRs);
                                 }
                                 else
                                 {
-                                    PRs._parseTypeEnum = InternalParseTypeE.ObjectEnd;
-                                    PRs._memberTypeEnum = op._memberTypeEnum;
-                                    PRs._memberValueEnum = op._memberValueEnum;
-                                    _objectReader.Parse(PRs);
+                                    PRs.parseTypeEnum = ParseTypeEnum.ObjectEnd;
+                                    PRs.memberTypeEnum = op._memberTypeEnum;
+                                    PRs.memberValueEnum = op._memberValueEnum;
+                                    objectReader.Parse(PRs);
                                 }
                                 stack.Pop();
                                 PutOp(op);
@@ -1043,7 +1048,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
             catch (EndOfStreamException)
             {
-                throw new SerializationException(System.SR.Serialization_StreamEnd);
+                throw new SerializationException(RemotingResources.SerializationStreamEnd);
             }
         }
 
@@ -1051,13 +1056,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
-                BinaryAssemblyInfo info2 = _systemAssemblyInfo;
-                if (_systemAssemblyInfo == null)
-                {
-                    BinaryAssemblyInfo local1 = _systemAssemblyInfo;
-                    info2 = _systemAssemblyInfo = new BinaryAssemblyInfo(Converter.s_urtAssemblyString, Converter.s_urtAssembly);
-                }
-                return info2;
+                return _systemAssemblyInfo ?? (_systemAssemblyInfo = new BinaryAssemblyInfo(Converter.s_urtAssemblyString, Converter.s_urtAssembly));
             }
         }
 
@@ -1065,13 +1064,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
-                SizedArray array2 = objectMapIdTable;
-                if (objectMapIdTable == null)
-                {
-                    SizedArray local1 = objectMapIdTable;
-                    array2 = objectMapIdTable = new SizedArray();
-                }
-                return array2;
+                return objectMapIdTable ?? (objectMapIdTable = new SizedArray());
             }
         }
 
@@ -1079,13 +1072,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
-                SizedArray array2 = assemIdToAssemblyTable;
-                if (assemIdToAssemblyTable == null)
-                {
-                    SizedArray local1 = assemIdToAssemblyTable;
-                    array2 = assemIdToAssemblyTable = new SizedArray(2);
-                }
-                return array2;
+                return assemIdToAssemblyTable ?? (assemIdToAssemblyTable = new SizedArray(2));
             }
         }
 
@@ -1093,13 +1080,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             get
             {
-                ParseRecord record2 = _prs;
-                if (_prs == null)
-                {
-                    ParseRecord local1 = _prs;
-                    record2 = _prs = new ParseRecord();
-                }
-                return record2;
+                return _prs ?? (_prs = new ParseRecord());
             }
         }
     }

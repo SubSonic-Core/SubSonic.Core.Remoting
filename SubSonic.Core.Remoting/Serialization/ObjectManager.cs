@@ -40,5 +40,15 @@ namespace SubSonic.Core.Remoting.Serialization
                 }
             }
         }
+
+        public void RegisterString(string obj, long objectID, SerializationInfo info, long idOfContainingObj, MemberInfo member)
+        {
+            MethodInfo method = base.GetType().GetMethod(nameof(RegisterString), BindingFlags.NonPublic | BindingFlags.Instance);
+
+            if (method != null)
+            {
+                method.Invoke(this, new object[] { obj, objectID, info, idOfContainingObj, member });
+            }
+        }
     }
 }

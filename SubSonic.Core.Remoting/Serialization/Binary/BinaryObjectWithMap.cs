@@ -7,11 +7,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
     public class BinaryObjectWithMap 
         : BinaryObject
     {
-        protected BinaryHeaderEnum binaryHeaderEnum;
-        protected string name;
-        protected int numMembers;
-        protected string[] memberNames;
-        protected int assemId;
+        public BinaryHeaderEnum BinaryHeaderEnum { get; set; }
+        public string Name { get; set; }
+        public int NumMembers { get; set; }
+        public string[] MemberNames { get; set; }
+        public int AssemId { get; set; }
 
         public BinaryObjectWithMap()
         {
@@ -19,48 +19,48 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public BinaryObjectWithMap(BinaryHeaderEnum binaryHeaderEnum)
         {
-            this.binaryHeaderEnum = binaryHeaderEnum;
+            this.BinaryHeaderEnum = binaryHeaderEnum;
         }
 
-        public void Read(BinaryParser input)
+        public override void Read(BinaryParser input)
         {
-            this.objectId = input.ReadInt32();
-            this.name = input.ReadString();
-            this.numMembers = input.ReadInt32();
-            this.memberNames = new string[this.numMembers];
-            for (int i = 0; i < this.numMembers; i++)
+            this.ObjectId = input.ReadInt32();
+            this.Name = input.ReadString();
+            this.NumMembers = input.ReadInt32();
+            this.MemberNames = new string[this.NumMembers];
+            for (int i = 0; i < this.NumMembers; i++)
             {
-                this.memberNames[i] = input.ReadString();
+                this.MemberNames[i] = input.ReadString();
             }
-            if (this.binaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapAssemId)
+            if (this.BinaryHeaderEnum == BinaryHeaderEnum.ObjectWithMapAssemId)
             {
-                this.assemId = input.ReadInt32();
+                this.AssemId = input.ReadInt32();
             }
         }
 
         internal void Set(int objectId, string name, int numMembers, string[] memberNames, int assemId)
         {
-            this._objectId = objectId;
-            this.name = name;
-            this.numMembers = numMembers;
-            this.memberNames = memberNames;
-            this.assemId = assemId;
-            this.binaryHeaderEnum = (assemId > 0) ? BinaryHeaderEnum.ObjectWithMapAssemId : BinaryHeaderEnum.ObjectWithMap;
+            this.ObjectId = objectId;
+            this.Name = name;
+            this.NumMembers = numMembers;
+            this.MemberNames = memberNames;
+            this.AssemId = assemId;
+            this.BinaryHeaderEnum = (assemId > 0) ? BinaryHeaderEnum.ObjectWithMapAssemId : BinaryHeaderEnum.ObjectWithMap;
         }
 
-        public void Write(BinaryFormatterWriter output)
+        public override void Write(BinaryFormatterWriter output)
         {
-            output.WriteByte((byte)this.binaryHeaderEnum);
-            output.WriteInt32(this._objectId);
-            output.WriteString(this.name);
-            output.WriteInt32(this.numMembers);
-            for (int i = 0; i < this.numMembers; i++)
+            output.WriteByte((byte)this.BinaryHeaderEnum);
+            output.WriteInt32(this.ObjectId);
+            output.WriteString(this.Name);
+            output.WriteInt32(this.NumMembers);
+            for (int i = 0; i < this.NumMembers; i++)
             {
-                output.WriteString(this.memberNames[i]);
+                output.WriteString(this.MemberNames[i]);
             }
-            if (this.assemId > 0)
+            if (this.AssemId > 0)
             {
-                output.WriteInt32(this.assemId);
+                output.WriteInt32(this.AssemId);
             }
         }
     }

@@ -14,9 +14,10 @@ namespace SubSonic.Core.Remoting.Serialization
         : IFormatter
     {
         private static readonly ConcurrentDictionary<Type, TypeInformation> s_typeNameCache = new ConcurrentDictionary<Type, TypeInformation>();
-        private FormatterTypeStyle typeFormat;
-        private TypeFilterLevel securityLevel;
-        private FormatterAssemblyStyle assemblyStyle;
+        public FormatterTypeStyle TypeFormat { get; set; }
+        public TypeFilterLevel FilterLevel { get; set; }
+        private object[] crossAppDomainArray;
+        public FormatterAssemblyStyle AssemblyStyle { get; set; }
 
         public SerializationBinder Binder { get; set; }
         public StreamingContext Context { get; set; }
@@ -30,8 +31,8 @@ namespace SubSonic.Core.Remoting.Serialization
 
         public BinaryFormatter(ISurrogateSelector selector, StreamingContext context)
         {
-            typeFormat = FormatterTypeStyle.TypesAlways;
-            securityLevel = TypeFilterLevel.Full;
+            TypeFormat = FormatterTypeStyle.TypesAlways;
+            FilterLevel = TypeFilterLevel.Full;
             SurrogateSelector = selector;
             Context = context;
         }
@@ -46,7 +47,7 @@ namespace SubSonic.Core.Remoting.Serialization
 
         public object Deserialize(Stream serializationStream)
         {
-            throw new NotImplementedException();
+            return Deserialize(serializationStream, true);
         }
 
         internal object Deserialize(Stream serializationStream, bool check)
@@ -60,18 +61,42 @@ namespace SubSonic.Core.Remoting.Serialization
                 throw new SerializationException();
             }
 
-            FormatterHelper fh = new FormatterHelper();
+            FormatterHelper fh = new FormatterHelper
+            {
+                TypeFormat = TypeFormat,
+                SerializerType = Binary.SerializerType.Binary,
+                AssemblyFormat = AssemblyStyle,
+                SecurityLevel = FilterLevel
+            };
 
-            fh.TypeFormat = typeFormat;
-            fh.SerializerType = Binary.SerializerType.Binary;
-            fh.AssemblyFormat = assemblyStyle;
-            fh.SecurityLevel = securityLevel;
             ObjectReader reader = new ObjectReader(serializationStream, SurrogateSelector, Context, fh, Binder);
+            reader.CrossAppDomainArray = this.crossAppDomainArray;
+            return reader.Deserialize(new BinaryParser(serializationStream, reader), check);
         }
 
         public void Serialize(Stream serializationStream, object graph)
         {
-            throw new NotImplementedException();
+            this.Serialize(serializationStream, graph, true);
+        }
+
+        internal void Serialize(Stream serializationStream, object graph, bool check)
+        {
+            if (serializationStream == null)
+            {
+                throw new ArgumentNullException("serializationStream");
+            }
+            FormatterHelper fh = new FormatterHelper
+            {
+                TypeFormat = TypeFormat,
+                SerializerType = Binary.SerializerType.Binary,
+                AssemblyFormat = AssemblyStyle,
+                SecurityLevel = FilterLevel
+            };
+
+            ObjectWriter objectWriter = new ObjectWriter(SurrogateSelector, Context, fh, Binder);
+            BinaryFormatterWriter serWriter = new BinaryFormatterWriter(serializationStream, objectWriter, TypeFormat);
+            objectWriter.Serialize(graph, serWriter, check);
+            crossAppDomainArray = objectWriter._crossAppDomainArray;
         }
     }
 }

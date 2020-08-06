@@ -13,14 +13,14 @@ namespace SubSonic.Core.Remoting.Channels
         private static volatile RegisteredChannelList s_registeredChannels = new RegisteredChannelList();
 
         [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.RemotingConfiguration)]
-        public static async Task<bool> RegisterChannelAsync(IChannel channel, bool ensureSecurity = false)
+        public static bool RegisterChannel(IChannel channel, bool ensureSecurity = false)
         {
             if (channel == null)
             {
                 throw new ArgumentNullException(nameof(channel));
             }
 
-            await channel.InitializeAsync();
+            channel.Initialize();
 
             bool
                 lockTaken = false,
@@ -93,6 +93,25 @@ namespace SubSonic.Core.Remoting.Channels
             }
 
             return success;
+        }
+
+        internal static async Task<object> ConnectInternalAsync(Type typeToProxy, Uri uri)
+        {
+            for(int i = 0, n = s_registeredChannels.Count; i <n;i++)
+            {
+                if (s_registeredChannels[i] is RegisteredChannel channel)
+                {
+                    if (channel.IsSender &&
+                        channel is IChannelSender sender)
+                    {
+                        if (await sender.IsUriSupportedAsync(uri))
+                        {   // the host is what we are looking for.
+                            return await sender.Invoke(uri);
+                        }
+                    }
+                }
+            }
+            return default;
         }
     }
 }

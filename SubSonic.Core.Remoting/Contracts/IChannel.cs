@@ -30,7 +30,7 @@ namespace SubSonic.Core.Remoting.Contracts
         /// </summary>
         bool IsConnected { get; }
 
-        Task<IChannel> InitializeAsync();
+        IChannel Initialize();
         /// <summary>
         /// Returns the object URI as an out parameter, and the URI of the current channel
         /// as the return value.

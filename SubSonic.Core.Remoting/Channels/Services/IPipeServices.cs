@@ -7,10 +7,10 @@ namespace SubSonic.Core.Remoting.Channels.Services
     public interface IPipeServices
     {
         /// <summary>
-		/// get a string array of methods contained in this service
+		/// get a list of unique resource identifiers supported by this service
 		/// </summary>
 		/// <returns></returns>
-		string[] GetChannelSupportedUri();
+		Uri[] GetAllChannelUri();
 
 		/// <summary>
 		/// implements the ability to shutdown a local hosted service instance

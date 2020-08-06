@@ -1,44 +1,51 @@
 ﻿using ServiceWire.NamedPipes;
+using SubSonic.Core.Remoting.Channels.Services;
 using SubSonic.Core.Remoting.Contracts;
 using SubSonic.Core.Remoting.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
 {
     public class NamedPipeChannel<TService>
-        : IChannel, IChannelReciever, IChannelSender
-        where TService: class
+        : IpcChannel
+        where TService: class, IPipeServices
     {
-        private readonly ISerializationProvider serialization;
         NpClient<TService> NpClient = null;
-        private bool disposedValue;
 
         public NamedPipeChannel()
-            : this(new Hashtable())
+            : this(new Hashtable()) { }
+
+        public NamedPipeChannel(IDictionary properties, ISerializationProvider serialization = null)
+            : base(properties, serialization)
         {
             ChannelPriority = 1;
+            EnableAutomaticConnection = true;
+            ReconnectionInterval = 1000;
             ChannelName = typeof(TService).Name;
         }
 
-        public NamedPipeChannel(IDictionary properties, ISerializationProvider serialization = null)
+        public bool EnableAutomaticConnection { get; protected set; }
+
+        public int ReconnectionInterval { get; protected set; }
+
+        public override Uri[] GetAllChannelUri()
         {
-            Properties = properties ?? throw new ArgumentNullException(nameof(properties));
-            this.serialization = serialization ?? new BinarySerializationProvider();
+            if (!IsConnected)
+            {
+                return Array.Empty<Uri>();
+            }
+
+            return NpClient.Proxy.GetAllChannelUri();
         }
 
-        public int ChannelPriority { get; protected set; }
+        public override bool IsConnected => NpClient?.IsConnected ?? default;
 
-        public string ChannelName { get; protected set; }
-
-        public bool IsConnected => NpClient?.IsConnected ?? default;
-
-        public IDictionary Properties { get; }
-
-        public async Task<IChannel> InitializeAsync()
+        public override IChannel Initialize()
         {
             foreach (DictionaryEntry entry in Properties)
             {
@@ -52,49 +59,58 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
                     {
                         ChannelPriority = Utilities.Cast<int>(entry.Value);
                     }
+                    else if (key == nameof(EnableAutomaticConnection))
+                    {
+                        EnableAutomaticConnection = Utilities.Cast<bool>(entry.Value);
+                    }
+                    else if (key == nameof(ReconnectionInterval))
+                    {
+                        ReconnectionInterval = Utilities.Cast<int>(entry.Value);
+                    }
                 }
             }
-
-            NpClient = new NpClient<TService>(new NpEndPoint(ChannelName), serialization);
 
             return this;
         }
 
-        public Uri ChannelUri => new Uri($"ipc://{ChannelName}");
-
-        public string Parse(Uri uri, out string method)
+        public override async Task ConnectAsync()
         {
-            throw new NotImplementedException();
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
+            while(!IsConnected)
             {
-                if (disposing)
+                try
                 {
-                    NpClient?.Dispose();
-                    NpClient = null;
+                    NpClient = new NpClient<TService>(new NpEndPoint(ChannelName), serialization);
                 }
+                catch (TimeoutException)
+                {
+                    if(!EnableAutomaticConnection)
+                    {
+                        throw;
+                    }
 
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
+                    await Task.Delay(ReconnectionInterval);
+                }
             }
         }
 
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~NamedPipeChannel()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
-
-        public void Dispose()
+        public override async Task<object> Invoke(Uri uri)
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            if (typeof(TService).GetMethod(uri.LocalPath.Substring(1), BindingFlags.Public | BindingFlags.Instance) is MethodInfo method)
+            {
+                return await Task.Run(() => method.Invoke(NpClient.Proxy, new object[] { Guid.NewGuid() }));
+            }
+            return default;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                NpClient?.Dispose();
+                NpClient = null;
+            }
+
+            Dispose(disposing);
         }
     }
 }

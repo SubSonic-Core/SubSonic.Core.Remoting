@@ -29,14 +29,12 @@
   </ImportGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' AND '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgNerdbank_GitVersioning Condition=" '$(PkgNerdbank_GitVersioning)' == '' ">C:\Users\kccar\.nuget\packages\nerdbank.gitversioning\3.2.31</PkgNerdbank_GitVersioning>
-    <PkgMicrosoft_CodeAnalysis_Analyzers Condition=" '$(PkgMicrosoft_CodeAnalysis_Analyzers)' == '' ">C:\Users\kccar\.nuget\packages\microsoft.codeanalysis.analyzers\3.0.0</PkgMicrosoft_CodeAnalysis_Analyzers>
     <PkgMicrosoft_SourceLink_Common Condition=" '$(PkgMicrosoft_SourceLink_Common)' == '' ">C:\Users\kccar\.nuget\packages\microsoft.sourcelink.common\1.0.0</PkgMicrosoft_SourceLink_Common>
     <PkgMicrosoft_Build_Tasks_Git Condition=" '$(PkgMicrosoft_Build_Tasks_Git)' == '' ">C:\Users\kccar\.nuget\packages\microsoft.build.tasks.git\1.0.0</PkgMicrosoft_Build_Tasks_Git>
     <PkgMicrosoft_SourceLink_GitHub Condition=" '$(PkgMicrosoft_SourceLink_GitHub)' == '' ">C:\Users\kccar\.nuget\packages\microsoft.sourcelink.github\1.0.0</PkgMicrosoft_SourceLink_GitHub>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.1' AND '$(ExcludeRestorePackageImports)' != 'true' ">
     <PkgNerdbank_GitVersioning Condition=" '$(PkgNerdbank_GitVersioning)' == '' ">C:\Users\kccar\.nuget\packages\nerdbank.gitversioning\3.2.31</PkgNerdbank_GitVersioning>
-    <PkgMicrosoft_CodeAnalysis_Analyzers Condition=" '$(PkgMicrosoft_CodeAnalysis_Analyzers)' == '' ">C:\Users\kccar\.nuget\packages\microsoft.codeanalysis.analyzers\3.0.0</PkgMicrosoft_CodeAnalysis_Analyzers>
     <PkgMicrosoft_SourceLink_Common Condition=" '$(PkgMicrosoft_SourceLink_Common)' == '' ">C:\Users\kccar\.nuget\packages\microsoft.sourcelink.common\1.0.0</PkgMicrosoft_SourceLink_Common>
     <PkgMicrosoft_Build_Tasks_Git Condition=" '$(PkgMicrosoft_Build_Tasks_Git)' == '' ">C:\Users\kccar\.nuget\packages\microsoft.build.tasks.git\1.0.0</PkgMicrosoft_Build_Tasks_Git>
     <PkgMicrosoft_SourceLink_GitHub Condition=" '$(PkgMicrosoft_SourceLink_GitHub)' == '' ">C:\Users\kccar\.nuget\packages\microsoft.sourcelink.github\1.0.0</PkgMicrosoft_SourceLink_GitHub>

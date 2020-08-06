@@ -34,8 +34,8 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Mono.TextTemplating" Version="2.2.0-preview-0077-g00a6668806" />
-		<PackageReference Include="Mono.TextTemplating.Roslyn" Version="2.2.0-preview-0077-g00a6668806" />
+		<PackageReference Include="Mono.TextTemplating" Version="2.2.0-preview-0083-g3c6b59ffd5" />
+		<PackageReference Include="Mono.TextTemplating.Roslyn" Version="2.2.0-preview-0083-g3c6b59ffd5" />
 		<PackageReference Include="Nerdbank.GitVersioning" Version="3.2.31">
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -57,9 +57,5 @@
 	    <Generator>PublicResXFileCodeGenerator</Generator>
 	    <LastGenOutput>RemotingResources.Designer.cs</LastGenOutput>
 	  </EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Channels\Ipc\" />
 	</ItemGroup>
 </Project>

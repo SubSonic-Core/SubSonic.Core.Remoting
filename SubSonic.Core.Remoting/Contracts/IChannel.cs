@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace SubSonic.Core.Remoting.Contracts
     public interface IChannel
         : IDisposable
     {
+        IDictionary Properties { get; }
         /// <summary>
         /// Gets the priority of the channel.
         /// </summary>
@@ -23,6 +25,10 @@ namespace SubSonic.Core.Remoting.Contracts
         /// </summary>
         /// <returns>The name of the channel.</returns>
         string ChannelName { get; }
+        /// <summary>
+        /// Connection check to determine if the channel is actively connected
+        /// </summary>
+        bool IsConnected { get; }
 
         Task<IChannel> InitializeAsync();
         /// <summary>

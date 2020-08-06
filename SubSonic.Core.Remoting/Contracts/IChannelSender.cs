@@ -6,5 +6,6 @@ namespace SubSonic.Core.Remoting.Contracts
 {
     public interface IChannelSender
     {
+        Uri ChannelUri { get; }
     }
 }

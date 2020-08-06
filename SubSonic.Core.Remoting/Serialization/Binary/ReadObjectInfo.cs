@@ -27,13 +27,13 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
         }
 
-        public bool IsSi { get; private set; }
+        public bool IsSi;
 
-        public bool IsTyped { get; private set; }
+        public bool IsTyped;
 
-        public ObjectManager ObjectManager { get; private set; }
+        public ObjectManager ObjectManager;
 
-        public Type ObjectType { get; private set; }
+        public Type ObjectType;
 
         public void AddValue(string name, object value, ref SerializationInfo si, ref object[] memberData)
         {

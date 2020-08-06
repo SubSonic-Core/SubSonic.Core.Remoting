@@ -7,11 +7,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
     public class BinaryObjectWithMap 
         : BinaryObject
     {
-        public BinaryHeaderEnum BinaryHeaderEnum { get; set; }
-        public string Name { get; set; }
-        public int NumMembers { get; set; }
-        public string[] MemberNames { get; set; }
-        public int AssemId { get; set; }
+        internal BinaryHeaderEnum BinaryHeaderEnum;
+        internal string Name;
+        internal int NumMembers;
+        internal string[] MemberNames;
+        internal int AssemId;
 
         public BinaryObjectWithMap()
         {

@@ -8,9 +8,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
     public sealed class SerializationObjectInfoCache
         : TypeInformation
     {
-        public MemberInfo[] MemberInfos { get; set; }
-        public string[] MemberNames { get; set; }
-        public Type[] MemberTypes { get; set; }
+        public MemberInfo[] MemberInfos;
+        public string[] MemberNames;
+        public Type[] MemberTypes;
 
         public SerializationObjectInfoCache(string typeName, string assemblyName, bool hasTypeForwardedFrom)
             : base(typeName, assemblyName, hasTypeForwardedFrom) { }

@@ -16,10 +16,10 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         protected TypeInformation(TypeInformation info)
             : this(info.FullTypeName, info.AssemblyString, info.HasTypeForwardedFrom) { }
 
-        public string FullTypeName { get; }
+        public string FullTypeName;
 
-        public string AssemblyString { get; }
+        public string AssemblyString;
 
-        public bool HasTypeForwardedFrom { get; }
+        public bool HasTypeForwardedFrom;
     }
 }

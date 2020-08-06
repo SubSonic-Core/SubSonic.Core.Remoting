@@ -51,11 +51,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         //internal static readonly Type s_typeofUInt32Array = typeof(uint[]);
         //internal static readonly Type s_typeofUInt64Array = typeof(ulong[]);
         //internal static readonly Type s_typeofMarshalByRefObject = typeof(MarshalByRefObject);
-        private static volatile Hashtable s_PrimitiveTypeToTypeLookup;
-        private static volatile Hashtable s_PrimitiveTypeToArrayTypeLookup;
-        private static volatile Hashtable s_PrimitiveTypeToStringLookup;
-        private static volatile Hashtable s_PrimitiveTypeToTypeCodeLookup;
-        private static volatile Hashtable s_TypeCodeToPrimitiveTypeLookup;
+        private static readonly Hashtable s_PrimitiveTypeToTypeLookup;
+        private static readonly Hashtable s_PrimitiveTypeToArrayTypeLookup;
+        private static readonly Hashtable s_PrimitiveTypeToStringLookup;
+        private static readonly Hashtable s_PrimitiveTypeToTypeCodeLookup;
+        private static readonly Hashtable s_TypeCodeToPrimitiveTypeLookup;
 
         /// <summary>
         /// Initialize the look up tables before anyone comes a calling
@@ -71,7 +71,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
             foreach (string type in Enum.GetNames(typeof(PrimitiveTypeEnum)))
             {
-                PrimitiveTypeToStringLookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = type;
+                PrimitiveTypeEnum primitiveType = type.Parse<PrimitiveTypeEnum>();
+
+                PrimitiveTypeToStringLookup[primitiveType] = type;
 
                 if (type.Equals(nameof(PrimitiveTypeEnum.Invalid), StringComparison.Ordinal))
                 {
@@ -79,17 +81,18 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 }
 
                 Type realType = Type.GetType($"System.{type}");
+                TypeCode typeCode = Type.GetTypeCode(realType);
 
-                PrimitiveTypeToTypeLookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = realType;
-                PrimitiveTypeToTypeCodeLookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = Type.GetTypeCode(realType);
-                TypeCodeToPrimitiveTypeLookup[Type.GetTypeCode(realType)] = Enum.Parse(typeof(PrimitiveTypeEnum), type);
+                PrimitiveTypeToTypeLookup[primitiveType] = realType;
+                PrimitiveTypeToTypeCodeLookup[primitiveType] = typeCode;
+                TypeCodeToPrimitiveTypeLookup[typeCode] = primitiveType;
 
                 if (type.Equals(nameof(PrimitiveTypeEnum.Null), StringComparison.Ordinal))
                 {
                     continue;
                 }
 
-                PrimitiveTypeToArrayTypeLookup[Enum.Parse(typeof(PrimitiveTypeEnum), type)] = realType.MakeArrayType();
+                PrimitiveTypeToArrayTypeLookup[primitiveType] = realType.MakeArrayType();
             }
 
             s_PrimitiveTypeToTypeLookup = PrimitiveTypeToTypeLookup;
@@ -101,56 +104,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public static Array CreatePrimitiveArray(PrimitiveTypeEnum code, int length)
         {
-#pragma warning disable IDE0066 // Convert switch statement to expression
-            switch (code)
-#pragma warning restore IDE0066 // Convert switch statement to expression
+            if( Activator.CreateInstance((Type)s_PrimitiveTypeToArrayTypeLookup[code], length) is Array success)
             {
-                case PrimitiveTypeEnum.Boolean:
-                    return new bool[length];
-
-                case PrimitiveTypeEnum.Byte:
-                    return new byte[length];
-
-                case PrimitiveTypeEnum.Char:
-                    return new char[length];
-
-                case PrimitiveTypeEnum.Decimal:
-                    return new decimal[length];
-
-                case PrimitiveTypeEnum.Double:
-                    return new double[length];
-
-                case PrimitiveTypeEnum.Int16:
-                    return new short[length];
-
-                case PrimitiveTypeEnum.Int32:
-                    return new int[length];
-
-                case PrimitiveTypeEnum.Int64:
-                    return new long[length];
-
-                case PrimitiveTypeEnum.SByte:
-                    return new sbyte[length];
-
-                case PrimitiveTypeEnum.Single:
-                    return new float[length];
-
-                case PrimitiveTypeEnum.TimeSpan:
-                    return new TimeSpan[length];
-
-                case PrimitiveTypeEnum.DateTime:
-                    return new DateTime[length];
-
-                case PrimitiveTypeEnum.UInt16:
-                    return new ushort[length];
-
-                case PrimitiveTypeEnum.UInt32:
-                    return new uint[length];
-
-                case PrimitiveTypeEnum.UInt64:
-                    return new ulong[length];
+                return success;
             }
-            return null;
+            return default;
         }
 
         public static object FromString(string value, PrimitiveTypeEnum code)

@@ -6,7 +6,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
     public sealed class BinaryAssemblyInfo
     {
-        public string AssemblyString { get; }
+        internal string AssemblyString;
         private Assembly _assembly;
 
         public BinaryAssemblyInfo(string assemblyString)

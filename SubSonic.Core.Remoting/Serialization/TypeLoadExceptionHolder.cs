@@ -11,6 +11,6 @@ namespace SubSonic.Core.Remoting.Serialization
             TypeName = typeName;
         }
 
-        public string TypeName { get; }
+        public readonly string TypeName;
     }
 }

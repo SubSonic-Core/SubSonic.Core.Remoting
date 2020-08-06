@@ -8,9 +8,9 @@ namespace SubSonic.Core.Remoting.Serialization
 {
     public sealed class FormatterHelper
     {
-        public FormatterTypeStyle TypeFormat { get; set; }
-        public FormatterAssemblyStyle AssemblyFormat { get; set; }
-        public TypeFilterLevel SecurityLevel { get; set; }
-        public SerializerType SerializerType { get; set; }
+        internal FormatterTypeStyle TypeFormat;
+        internal FormatterAssemblyStyle AssemblyFormat;
+        internal TypeFilterLevel SecurityLevel;
+        internal SerializerType SerializerType;
     }
 }

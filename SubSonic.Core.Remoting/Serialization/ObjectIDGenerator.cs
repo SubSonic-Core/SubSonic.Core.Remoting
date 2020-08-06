@@ -13,16 +13,16 @@ namespace SubSonic.Core.Remoting.Serialization
         public ObjectIDGenerator()
             : base()
         {
-            
+            _currentCount = typeof(RuntimeObjcectIDGenerator).GetField(nameof(_currentCount), BindingFlags.NonPublic | BindingFlags.Instance);
         }
+
+        private static FieldInfo _currentCount;
 
         public int CurrentCount
         {
             get
             {
-                FieldInfo field = base.GetType().GetField("_currentCount", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if ((field?.GetValue(this) ?? 1) is int value)
+                if ((_currentCount.GetValue(this) ?? 1) is int value)
                 {
                     return value;
                 }
@@ -30,12 +30,7 @@ namespace SubSonic.Core.Remoting.Serialization
             }
             set
             {
-                FieldInfo field = base.GetType().GetField("_currentCount", BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (field != null)
-                {
-                    field.SetValue(this, value);
-                }
+                _currentCount.SetValue(this, value);
             }
         }
     }

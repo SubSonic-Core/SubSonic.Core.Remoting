@@ -7,9 +7,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
     public class BinaryObjectWithMapTyped
         : BinaryObjectWithMap
     {
-        public BinaryTypeEnum[] BinaryTypeEnumArray { get; set; }
-        public object[] TypeInformationArray { get; set; }
-        public int[] MemberAssemIds { get; set; }
+        internal BinaryTypeEnum[] BinaryTypeEnumArray;
+        internal object[] TypeInformationArray;
+        internal int[] MemberAssemIds;
 
         public BinaryObjectWithMapTyped()
             : base() { }

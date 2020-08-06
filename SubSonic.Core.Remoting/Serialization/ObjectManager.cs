@@ -13,42 +13,30 @@ namespace SubSonic.Core.Remoting.Serialization
         public ObjectManager(ISurrogateSelector selector, StreamingContext context)
             : base(selector, context)
         {
-
+            topObject = typeof(RuntimeObjectManager).GetProperty(nameof(TopObject), BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new InvalidOperationException();
+            registerString = typeof(RuntimeObjectManager).GetMethod(nameof(RegisterString), BindingFlags.NonPublic | BindingFlags.Instance) ?? throw new InvalidOperationException();
         }
+
+        private static PropertyInfo topObject;
 
         public object TopObject
         {
             get
             {
-                PropertyInfo property = base.GetType().GetProperty(nameof(TopObject), BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (property != null)
-                {
-                    return property.GetValue(this);
-                }
-
-                return null;
+                return topObject.GetValue(this);
             }
 
             set
             {
-                PropertyInfo property = base.GetType().GetProperty(nameof(TopObject), BindingFlags.NonPublic | BindingFlags.Instance);
-
-                if (property != null)
-                {
-                    property.SetValue(this, value);
-                }
+                topObject.SetValue(this, value);
             }
         }
 
+        private static MethodInfo registerString;
+
         public void RegisterString(string obj, long objectID, SerializationInfo info, long idOfContainingObj, MemberInfo member)
         {
-            MethodInfo method = base.GetType().GetMethod(nameof(RegisterString), BindingFlags.NonPublic | BindingFlags.Instance);
-
-            if (method != null)
-            {
-                method.Invoke(this, new object[] { obj, objectID, info, idOfContainingObj, member });
-            }
+            registerString.Invoke(this, new object[] { obj, objectID, info, idOfContainingObj, member });
         }
     }
 }

@@ -3,8 +3,8 @@
     public class BinaryObject
         : IStreamable
     {
-        public int ObjectId { get; set; }
-        public int MapId { get; set; }
+        internal int ObjectId;
+        internal int MapId;
         
         public BinaryObject()
         {

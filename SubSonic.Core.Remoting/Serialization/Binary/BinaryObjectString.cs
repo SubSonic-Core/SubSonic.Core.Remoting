@@ -13,7 +13,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             Value = input.ReadString();
         }
 
-        public string Value { get; set; }
+        internal string Value;
 
         public void Set(int objectId, string value)
         {

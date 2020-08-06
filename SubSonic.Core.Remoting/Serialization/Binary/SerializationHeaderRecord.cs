@@ -54,11 +54,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             this._majorVersion = 1;
             this._minorVersion = 0;
-            output.WriteByte((byte)this._binaryHeaderEnum);
-            output.WriteInt32(this._topId);
-            output.WriteInt32(this._headerId);
-            output.WriteInt32(1);
-            output.WriteInt32(0);
+            output.Write((byte)this._binaryHeaderEnum);
+            output.Write(this._topId);
+            output.Write(this._headerId);
+            output.Write(1);
+            output.Write(0);
         }
     }
 }

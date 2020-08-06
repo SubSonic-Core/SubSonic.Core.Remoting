@@ -23,9 +23,9 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public override void Write(BinaryFormatterWriter output)
         {
-            output.WriteByte(6);
-            output.WriteInt32(ObjectId);
-            output.WriteString(Value);
+            output.Write((byte)6);
+            output.Write(ObjectId);
+            output.Write(Value);
         }
     }
 }

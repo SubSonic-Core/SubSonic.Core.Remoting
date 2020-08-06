@@ -85,7 +85,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                         }
                     }
                 }
-                this.WriteBytes(this._byteBuffer, 0, count);
+                this.Write(this._byteBuffer, 0, count);
                 num2 += num3;
             }
         }
@@ -112,81 +112,20 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
         }
 
-        internal void WriteBoolean(bool value)
-        {
-            this._dataWriter.Write(value);
-        }
-
-        internal void WriteByte(byte value)
-        {
-            this._dataWriter.Write(value);
-        }
-
-        private void WriteBytes(byte[] value)
-        {
-            this._dataWriter.Write(value);
-        }
-
-        private void WriteBytes(byte[] byteA, int offset, int size)
-        {
-            this._dataWriter.Write(byteA, offset, size);
-        }
-
-        internal void WriteChar(char value)
-        {
-            this._dataWriter.Write(value);
-        }
-
-        internal void WriteChars(char[] value)
-        {
-            this._dataWriter.Write(value);
-        }
-
-        internal void WriteDateTime(DateTime value)
-        {
-            long num = Unsafe.As<DateTime, long>(ref value);
-            this.WriteInt64(num);
-        }
-
-        internal void WriteDecimal(decimal value)
-        {
-            this.WriteString(value.ToString(CultureInfo.InvariantCulture));
-        }
-
         internal void WriteDelayedNullItem()
         {
             this._consecutiveNullArrayEntryCount++;
-        }
-
-        internal void WriteDouble(double value)
-        {
-            this._dataWriter.Write(value);
-        }
-
-        internal void WriteEnd()
-        {
-            this._dataWriter.Flush();
-        }
-
-        internal void WriteInt16(short value)
-        {
-            this._dataWriter.Write(value);
-        }
-
-        internal void WriteInt32(int value)
-        {
-            this._dataWriter.Write(value);
-        }
-
-        internal void WriteInt64(long value)
-        {
-            this._dataWriter.Write(value);
         }
 
         internal void WriteItem(NameInfo itemNameInfo, NameInfo typeNameInfo, object value)
         {
             this.InternalWriteItemNull();
             this.WriteMember(itemNameInfo, typeNameInfo, value);
+        }
+
+        internal void WriteEnd()
+        {
+            this._dataWriter.Flush();
         }
 
         internal void WriteItemEnd()
@@ -406,26 +345,6 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        internal void WriteSByte(sbyte value)
-        {
-            this.WriteByte((byte)value);
-        }
-
-        internal void WriteSerializationHeader(int topId, int headerId, int minorVersion, int majorVersion)
-        {
-            new SerializationHeaderRecord(BinaryHeaderEnum.SerializedStreamHeader, topId, headerId, minorVersion, majorVersion).Write(this);
-        }
-
-        internal void WriteSerializationHeaderEnd()
-        {
-            new MessageEnd().Write(this);
-        }
-
-        internal void WriteSingle(float value)
-        {
-            this._dataWriter.Write(value);
-        }
-
         internal void WriteSingleArray(/*NameInfo memberNameInfo,*/ NameInfo arrayNameInfo, WriteObjectInfo objectInfo, NameInfo arrayElemTypeNameInfo, int length, int lowerBound, Array array)
         {
             BinaryArrayTypeEnum single;
@@ -452,11 +371,11 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 if (arrayElemTypeNameInfo._primitiveTypeEnum == PrimitiveTypeEnum.Byte)
                 {
-                    this.WriteBytes((byte[])array);
+                    this.Write((byte[])array);
                 }
                 else if (arrayElemTypeNameInfo._primitiveTypeEnum == PrimitiveTypeEnum.Char)
                 {
-                    this.WriteChars((char[])array);
+                    this.Write((char[])array);
                 }
                 else
                 {
@@ -465,93 +384,177 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             }
         }
 
-        internal void WriteString(string value)
+        internal void WriteSerializationHeader(int topId, int headerId, int minorVersion, int majorVersion)
+        {
+            new SerializationHeaderRecord(BinaryHeaderEnum.SerializedStreamHeader, topId, headerId, minorVersion, majorVersion).Write(this);
+        }
+
+        internal void WriteSerializationHeaderEnd()
+        {
+            new MessageEnd().Write(this);
+        }
+
+        internal void Write(sbyte value)
+        {
+            this.Write((byte)value);
+        }
+
+        internal void Write(bool value)
         {
             this._dataWriter.Write(value);
         }
 
-        internal void WriteTimeSpan(TimeSpan value)
-        {
-            this.WriteInt64(value.Ticks);
-        }
-
-        internal void WriteUInt16(ushort value)
+        internal void Write(byte value)
         {
             this._dataWriter.Write(value);
         }
 
-        internal void WriteUInt32(uint value)
+        private void Write(byte[] value)
         {
             this._dataWriter.Write(value);
         }
 
-        internal void WriteUInt64(ulong value)
+        private void Write(byte[] byteA, int offset, int size)
+        {
+            this._dataWriter.Write(byteA, offset, size);
+        }
+
+        internal void Write(char value)
         {
             this._dataWriter.Write(value);
         }
+
+        internal void Write(char[] value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        internal void Write(DateTime value)
+        {
+            long num = Unsafe.As<DateTime, long>(ref value);
+            this.Write(num);
+        }
+
+        internal void Write(decimal value)
+        {
+            this.Write(value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        internal void Write(float value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        internal void Write(double value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        
+
+        internal void Write(short value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        internal void Write(int value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        internal void Write(long value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        internal void Write(string value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        internal void Write(TimeSpan value)
+        {
+            this.Write(value.Ticks);
+        }
+
+        internal void Write(ushort value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        internal void Write(uint value)
+        {
+            this._dataWriter.Write(value);
+        }
+
+        internal void Write(ulong value)
+        {
+            this._dataWriter.Write(value);
+        }
+
 
         public void WriteValue(PrimitiveTypeEnum code, object value)
         {
             switch (code)
             {
                 case PrimitiveTypeEnum.Boolean:
-                    this.WriteBoolean(Convert.ToBoolean(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<bool>(value));
                     return;
 
                 case PrimitiveTypeEnum.Byte:
-                    this.WriteByte(Convert.ToByte(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<byte>(value));
                     return;
 
                 case PrimitiveTypeEnum.Char:
-                    this.WriteChar(Convert.ToChar(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<char>(value));
                     return;
 
                 case PrimitiveTypeEnum.Decimal:
-                    this.WriteDecimal(Convert.ToDecimal(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<decimal>(value));
                     return;
 
                 case PrimitiveTypeEnum.Double:
-                    this.WriteDouble(Convert.ToDouble(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<double>(value));
                     return;
 
                 case PrimitiveTypeEnum.Int16:
-                    this.WriteInt16(Convert.ToInt16(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<short>(value));
                     return;
 
                 case PrimitiveTypeEnum.Int32:
-                    this.WriteInt32(Convert.ToInt32(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<int>(value));
                     return;
 
                 case PrimitiveTypeEnum.Int64:
-                    this.WriteInt64(Convert.ToInt64(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<long>(value));
                     return;
 
                 case PrimitiveTypeEnum.SByte:
-                    this.WriteSByte(Convert.ToSByte(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<sbyte>(value));
                     return;
 
                 case PrimitiveTypeEnum.Single:
-                    this.WriteSingle(Convert.ToSingle(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<float>(value));
                     return;
 
                 case PrimitiveTypeEnum.TimeSpan:
-                    this.WriteTimeSpan((TimeSpan)value);
+                    this.Write(Utilities.Cast<TimeSpan>(value).Ticks);
                     return;
 
                 case PrimitiveTypeEnum.DateTime:
-                    this.WriteDateTime((DateTime)value);
+                    this.Write(Utilities.Cast<DateTime>(value));
                     return;
 
                 case PrimitiveTypeEnum.UInt16:
-                    this.WriteUInt16(Convert.ToUInt16(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<ushort>(value));
                     return;
 
                 case PrimitiveTypeEnum.UInt32:
-                    this.WriteUInt32(Convert.ToUInt32(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<uint>(value));
                     return;
 
                 case PrimitiveTypeEnum.UInt64:
-                    this.WriteUInt64(Convert.ToUInt64(value, CultureInfo.InvariantCulture));
+                    this.Write(Utilities.Cast<ulong>(value));
                     return;
             }
             throw new SerializationException(RemotingResources.SerializationTypeCode.Format(code.ToString()));

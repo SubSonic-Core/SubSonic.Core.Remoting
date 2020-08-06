@@ -109,40 +109,40 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             switch (this._binaryHeaderEnum)
             {
                 case BinaryHeaderEnum.ArraySinglePrimitive:
-                    output.WriteByte((byte)this._binaryHeaderEnum);
-                    output.WriteInt32(this.ObjectId);
-                    output.WriteInt32(this._lengthA[0]);
-                    output.WriteByte((byte)((PrimitiveTypeEnum)this._typeInformation));
+                    output.Write((byte)this._binaryHeaderEnum);
+                    output.Write(this.ObjectId);
+                    output.Write(this._lengthA[0]);
+                    output.Write((byte)((PrimitiveTypeEnum)this._typeInformation));
                     return;
 
                 case BinaryHeaderEnum.ArraySingleObject:
-                    output.WriteByte((byte)this._binaryHeaderEnum);
-                    output.WriteInt32(this.ObjectId);
-                    output.WriteInt32(this._lengthA[0]);
+                    output.Write((byte)this._binaryHeaderEnum);
+                    output.Write(this.ObjectId);
+                    output.Write(this._lengthA[0]);
                     return;
 
                 case BinaryHeaderEnum.ArraySingleString:
-                    output.WriteByte((byte)this._binaryHeaderEnum);
-                    output.WriteInt32(this.ObjectId);
-                    output.WriteInt32(this._lengthA[0]);
+                    output.Write((byte)this._binaryHeaderEnum);
+                    output.Write(this.ObjectId);
+                    output.Write(this._lengthA[0]);
                     return;
             }
-            output.WriteByte((byte)this._binaryHeaderEnum);
-            output.WriteInt32(this.ObjectId);
-            output.WriteByte((byte)this._binaryArrayTypeEnum);
-            output.WriteInt32(this._rank);
+            output.Write((byte)this._binaryHeaderEnum);
+            output.Write(this.ObjectId);
+            output.Write((byte)this._binaryArrayTypeEnum);
+            output.Write(this._rank);
             for (int i = 0; i < this._rank; i++)
             {
-                output.WriteInt32(this._lengthA[i]);
+                output.Write(this._lengthA[i]);
             }
             if ((this._binaryArrayTypeEnum == BinaryArrayTypeEnum.SingleOffset) || ((this._binaryArrayTypeEnum == BinaryArrayTypeEnum.JaggedOffset) || (this._binaryArrayTypeEnum == BinaryArrayTypeEnum.RectangularOffset)))
             {
                 for (int j = 0; j < this._rank; j++)
                 {
-                    output.WriteInt32(this._lowerBoundA[j]);
+                    output.Write(this._lowerBoundA[j]);
                 }
             }
-            output.WriteByte((byte)this._binaryTypeEnum);
+            output.Write((byte)this._binaryTypeEnum);
             BinaryTypeConverter.WriteTypeInfo(this._binaryTypeEnum, this._typeInformation, this._assemId, output);
         }
     }

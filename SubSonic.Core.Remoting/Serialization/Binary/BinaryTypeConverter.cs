@@ -205,7 +205,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             {
                 case BinaryTypeEnum.Primitive:
                 case BinaryTypeEnum.PrimitiveArray:
-                    output.WriteByte((byte)(PrimitiveTypeEnum)typeInformation);
+                    output.Write((byte)(PrimitiveTypeEnum)typeInformation);
                     return;
 
                 case BinaryTypeEnum.String:
@@ -215,12 +215,12 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     return;
 
                 case BinaryTypeEnum.ObjectUrt:
-                    output.WriteString(typeInformation.ToString());
+                    output.Write(typeInformation.ToString());
                     return;
 
                 case BinaryTypeEnum.ObjectUser:
-                    output.WriteString(typeInformation.ToString());
-                    output.WriteInt32(assemId);
+                    output.Write(typeInformation.ToString());
+                    output.Write(assemId);
                     return;
             }
             throw new SerializationException(RemotingResources.SerializationTypeWrite.Format(binaryTypeEnum));

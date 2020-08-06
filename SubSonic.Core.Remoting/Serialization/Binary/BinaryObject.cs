@@ -24,9 +24,9 @@
 
         public virtual void Write(BinaryFormatterWriter output)
         {
-            output.WriteByte(1);
-            output.WriteInt32(this.ObjectId);
-            output.WriteInt32(this.MapId);
+            output.Write((byte)1);
+            output.Write(this.ObjectId);
+            output.Write(this.MapId);
         }
     }
 }

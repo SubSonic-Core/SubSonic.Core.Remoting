@@ -24,8 +24,8 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public void Write(BinaryFormatterWriter output)
         {
-            output.WriteByte(9);
-            output.WriteInt32(this._idRef);
+            output.Write((byte)9);
+            output.Write(this._idRef);
         }
     }
 }

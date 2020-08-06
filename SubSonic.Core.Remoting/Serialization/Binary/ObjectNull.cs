@@ -49,17 +49,17 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         {
             if (this.NullCount == 1)
             {
-                output.WriteByte(10);
+                output.Write((byte)10);
             }
             else if (this.NullCount < 0x100)
             {
-                output.WriteByte(13);
-                output.WriteByte((byte)this.NullCount);
+                output.Write((byte)13);
+                output.Write((byte)this.NullCount);
             }
             else
             {
-                output.WriteByte(14);
-                output.WriteInt32(this.NullCount);
+                output.Write((byte)14);
+                output.Write(this.NullCount);
             }
         }
     }

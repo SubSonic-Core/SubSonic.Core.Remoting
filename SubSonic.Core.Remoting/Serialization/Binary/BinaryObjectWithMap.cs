@@ -50,17 +50,17 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
         public override void Write(BinaryFormatterWriter output)
         {
-            output.WriteByte((byte)this.BinaryHeaderEnum);
-            output.WriteInt32(this.ObjectId);
-            output.WriteString(this.Name);
-            output.WriteInt32(this.NumMembers);
+            output.Write((byte)this.BinaryHeaderEnum);
+            output.Write(this.ObjectId);
+            output.Write(this.Name);
+            output.Write(this.NumMembers);
             for (int i = 0; i < this.NumMembers; i++)
             {
-                output.WriteString(this.MemberNames[i]);
+                output.Write(this.MemberNames[i]);
             }
             if (this.AssemId > 0)
             {
-                output.WriteInt32(this.AssemId);
+                output.Write(this.AssemId);
             }
         }
     }

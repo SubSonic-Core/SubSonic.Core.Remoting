@@ -258,4 +258,6 @@ D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testi
 D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\bin\Debug\netcoreapp3.1\ServiceWire.dll
 D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\bin\Debug\netcoreapp3.1\Mono.TextTemplating.dll
 D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\bin\Debug\netcoreapp3.1\System.CodeDom.dll
+D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\bin\Debug\netcoreapp3.1\Castle.Core.dll
+D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\bin\Debug\netcoreapp3.1\NSubstitute.dll
 D:\Source\home\SubSonic-Core\SubSonic.Core.Remoting\SubSonic.Core.Remoting.Testing\obj\Debug\netcoreapp3.1\SubSonic.Core.VisualStudio.Testing.csproj.CoreCompileInputs.cache

@@ -102,11 +102,11 @@ namespace SubSonic.Core.Remoting.Channels
                 if (s_registeredChannels[i] is RegisteredChannel channel)
                 {
                     if (channel.IsSender &&
-                        channel is IChannelSender sender)
+                        channel.Channel is IChannelSender sender)
                     {
                         if (await sender.IsUriSupportedAsync(uri))
                         {   // the host is what we are looking for.
-                            return await sender.Invoke(uri);
+                            return await sender.Invoke(typeToProxy, uri);
                         }
                     }
                 }

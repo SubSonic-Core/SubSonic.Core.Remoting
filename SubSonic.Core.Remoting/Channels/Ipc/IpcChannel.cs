@@ -55,7 +55,7 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
             return default;
         }
 
-        public abstract Task<object> Invoke(Uri uri);
+        public abstract Task<object> Invoke(Type typeOfProxy, Uri uri);
 
         protected virtual void Dispose(bool disposing)
         {

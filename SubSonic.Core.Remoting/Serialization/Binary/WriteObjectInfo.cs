@@ -161,7 +161,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                 _isArray = true;
                 InitNoMembers();
             }
-            else
+            else if (_objectType.IsSerializable)
             {
                 InvokeSerializationBinder(binder);
                 objectWriter.ObjectManager.RegisterObject(obj);
@@ -190,6 +190,10 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
                     InitMemberInfo();
                     //CheckTypeForwardedFrom(_cache, _objectType, _binderAssemblyString);                    
                 }
+            }
+            else
+            {
+                throw new SerializationException(RemotingResources.NotMarkedForSerialization.Format(_objectType.FullName, _objectType.Assembly.FullName));
             }
         }
 

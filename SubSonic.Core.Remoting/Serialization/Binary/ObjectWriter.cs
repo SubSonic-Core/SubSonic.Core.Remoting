@@ -8,8 +8,8 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 {
     public sealed class ObjectWriter
     {
-        private Queue<object> _objectQueue;
-        private ObjectIDGenerator _idGenerator;
+        private readonly Queue<object> _objectQueue;
+        private readonly ObjectIDGenerator _idGenerator;
         private int _currentId = 1;
         private readonly ISurrogateSelector _surrogates;
         private readonly StreamingContext _context;
@@ -18,8 +18,8 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         private readonly string _topName;
         private readonly FormatterHelper _formatterEnums;
         private readonly SerializationBinder _binder;
-        private SerializationObjectInfo _serObjectInfoInit;
-        private IFormatterConverter _formatterConverter;
+        private readonly SerializationObjectInfo _serObjectInfoInit;
+        private readonly IFormatterConverter _formatterConverter;
         internal object[] _crossAppDomainArray;
         private object _previousObj;
         private long _previousId;
@@ -35,6 +35,10 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
             this._binder = binder;
             this._formatterEnums = formatterEnums;
             this.ObjectManager = new SerializationObjectManager(context);
+            this._idGenerator = new ObjectIDGenerator();
+            this._objectQueue = new Queue<object>();
+            this._formatterConverter = new FormatterConverter();
+            this._serObjectInfoInit = new SerializationObjectInfo();
         }
 
         private bool CheckForNull(WriteObjectInfo objectInfo, NameInfo memberNameInfo, NameInfo typeNameInfo, object data)
@@ -198,10 +202,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
 
             this._serWriter = serWriter ?? throw new ArgumentNullException("serWriter");
             serWriter.WriteBegin();
-            this._idGenerator = new ObjectIDGenerator();
-            this._objectQueue = new Queue<object>();
-            this._formatterConverter = new FormatterConverter();
-            this._serObjectInfoInit = new SerializationObjectInfo();
+            
             this._topId = this.InternalGetId(graph, false, null, out _);
             long headerId = -1L;
             this.WriteSerializedStreamHeader(this._topId, headerId);

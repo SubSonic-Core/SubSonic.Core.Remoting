@@ -93,11 +93,16 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
             }
         }
 
-        public override async Task<object> Invoke(Uri uri)
+        public override async Task<object> Invoke(Type typeOfProxy, Uri uri)
         {
             if (typeof(TService).GetMethod(uri.LocalPath.Substring(1), BindingFlags.Public | BindingFlags.Instance) is MethodInfo method)
             {
-                return await Task.Run(() => method.Invoke(NpClient.Proxy, new object[] { Guid.NewGuid() }));
+                object result =  await Task.Run(() => method.Invoke(NpClient.Proxy, new object[] { Guid.NewGuid() }));
+
+                if (typeOfProxy.IsAssignableFrom(result.GetType()))
+                {
+                    return result;
+                }
             }
             return default;
         }

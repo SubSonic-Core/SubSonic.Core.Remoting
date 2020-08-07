@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
+using Factory = Mono.VisualStudio.TextTemplating.VSHost.TransformationRunFactory;
 
 namespace SubSonic.Core.VisualStudio.Testing.Components
 {
@@ -31,7 +32,7 @@ namespace SubSonic.Core.VisualStudio.Testing.Components
 
         public IProcessTransformationRunFactory TransformationRunFactory(Guid id)
         {
-            IProcessTransformationRunFactory factory = new RemoteTransformationRunFactory(id)
+            IProcessTransformationRunFactory factory = new TransformationRunFactory(id)
             {
                 IsAlive = true
             };
@@ -42,6 +43,25 @@ namespace SubSonic.Core.VisualStudio.Testing.Components
             }
 
             return default;
+        }
+
+        public bool Shutdown(Guid id)
+        {
+            if (runFactories.TryGetValue(id, out IProcessTransformationRunFactory factory))
+            {
+                foreach(var entry in Factory.Runners)
+                {
+                    if (entry.Value is TransformationRunner runner)
+                    {
+                        if (id == runner.Factory.ID)
+                        {
+                            factory.DisposeOfRunner(runner.RunnerId);
+                        }
+                    }
+                }
+            }
+
+            return (IsRunning = Factory.Runners.Count > 0);
         }
 
         protected virtual void Dispose(bool disposing)

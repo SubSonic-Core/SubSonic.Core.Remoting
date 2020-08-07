@@ -3,7 +3,10 @@ using SubSonic.Core.Remoting.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SubSonic.Core.Remoting.Channels.Ipc
@@ -47,7 +50,13 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
 
             foreach(Uri serviceUri in GetAllChannelUri())
             {
-                if (serviceUri.Equals(uri))
+                MethodHelper
+                    serviceMethod = new MethodHelper(serviceUri.LocalPath),
+                    uriMethod = new MethodHelper(uri.LocalPath);
+
+                if (serviceUri.Scheme == uri.Scheme &&
+                    serviceUri.Host == uri.Host &&
+                    serviceMethod == uriMethod)
                 {
                     return true;
                 }

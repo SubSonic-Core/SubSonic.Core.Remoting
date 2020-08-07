@@ -11,11 +11,5 @@ namespace SubSonic.Core.Remoting.Channels.Services
 		/// </summary>
 		/// <returns></returns>
 		Uri[] GetAllChannelUri();
-
-		/// <summary>
-		/// implements the ability to shutdown a local hosted service instance
-		/// </summary>
-		/// <returns></returns>
-		bool Shutdown();
 	}
 }

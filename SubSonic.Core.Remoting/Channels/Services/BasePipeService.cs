@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -30,15 +31,12 @@ namespace SubSonic.Core.Remoting.Channels.Services
                     continue;
                 }
 
-                list.Add(new Uri(serviceUri, method.Name));
+                IEnumerable<string> parameters = method.GetParameters().Select(x => $"{{{x.Name}}}");
+
+                list.Add(new Uri(serviceUri, $"{method.Name}{(parameters.Count() == 0 ? "" : $"/{parameters.Join("/")}")}"));
             }
 
             return list.ToArray();
-        }
-
-        public virtual bool Shutdown()
-        {
-            return (IsRunning = false);
         }
     }
 }

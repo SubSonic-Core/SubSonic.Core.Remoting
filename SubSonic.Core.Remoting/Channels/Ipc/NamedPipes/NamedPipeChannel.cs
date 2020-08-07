@@ -5,6 +5,7 @@ using SubSonic.Core.Remoting.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -95,9 +96,27 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
 
         public override async Task<object> Invoke(Type typeOfProxy, Uri uri)
         {
-            if (typeof(TService).GetMethod(uri.LocalPath.Substring(1), BindingFlags.Public | BindingFlags.Instance) is MethodInfo method)
+            MethodHelper helper = new MethodHelper(uri.LocalPath);
+
+            if (typeof(TService).GetMethod(helper.Name, BindingFlags.Public | BindingFlags.Instance) is MethodInfo method)
             {
-                object result =  await Task.Run(() => method.Invoke(NpClient.Proxy, new object[] { Guid.NewGuid() }));
+                object[] parameters = new object[method.GetParameters().Length];
+
+                for(int i = 0, n = method.GetParameters().Length; i < n; i++)
+                {
+                    var parameter = method.GetParameters()[i];
+
+                    if (parameter.ParameterType == typeof(Guid))
+                    {
+                        parameters[i] = new Guid(helper.Parameters.ElementAt(i));
+                    }
+                    else
+                    {
+                        parameters[i] = Convert.ChangeType(helper.Parameters.ElementAt(i), parameter.ParameterType);
+                    }
+                }
+
+                object result =  await Task.Run(() => method.Invoke(NpClient.Proxy, parameters));
 
                 if (typeOfProxy.IsAssignableFrom(result.GetType()))
                 {

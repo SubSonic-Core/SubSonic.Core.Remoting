@@ -112,6 +112,8 @@ namespace SubSonic.Core.Remoting
                     runner.RunnerId.Should().NotBeEmpty();
 
                     runFactory.PerformTransformation(runner.RunnerId).Should().Be("// Error Generating Output");
+
+                    runner.Errors.HasErrors.Should().BeTrue();
                 }
             }
         }

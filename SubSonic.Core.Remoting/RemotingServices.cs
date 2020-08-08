@@ -30,5 +30,10 @@ namespace SubSonic.Core.Remoting
 
             return await ChannelServices.ConnectInternalAsync(typeToProxy, uri);
         }
+
+        public static bool Disconnect(Uri serviceUri)
+        {
+            return ChannelServices.DisconnectInternal(serviceUri);
+        }
     }
 }

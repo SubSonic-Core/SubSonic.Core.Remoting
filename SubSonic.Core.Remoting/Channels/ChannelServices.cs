@@ -95,6 +95,11 @@ namespace SubSonic.Core.Remoting.Channels
             return success;
         }
 
+        internal static bool DisconnectInternal(Uri serviceUri)
+        {
+            throw new NotImplementedException();
+        }
+
         internal static async Task<object> ConnectInternalAsync(Type typeToProxy, Uri uri)
         {
             for(int i = 0, n = s_registeredChannels.Count; i <n;i++)

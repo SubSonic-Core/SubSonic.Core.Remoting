@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 using Mono.VisualStudio.TextTemplating;
 using Mono.VisualStudio.TextTemplating.VSHost;
 using NUnit.Framework;
@@ -116,6 +117,15 @@ namespace SubSonic.Core.Remoting
                     runner.Errors.HasErrors.Should().BeTrue();
                 }
             }
+        }
+
+        [Test]
+        [Order(1000)]
+        [TestCase("ipc://TransformationRunFactoryService", true)]
+        [TestCase("ipc://UnknownService", false)]
+        public void CanDisconnectServiceUsingUri(string uri, bool expected)
+        {
+            RemotingServices.Disconnect(new Uri(uri)).Should().Be(expected);
         }
     }
 }

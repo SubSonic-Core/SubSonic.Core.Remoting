@@ -16,7 +16,9 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
         : IpcChannel
         where TService: class, IPipeServices
     {
-        NpClient<TService> NpClient = null;
+        private Uri[] supportedUri;
+
+        private NpClient<TService> NpClient = null;
 
         public NamedPipeChannel()
             : this(new Hashtable()) { }
@@ -36,12 +38,12 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
 
         public override Uri[] GetAllChannelUri()
         {
-            if (!IsConnected)
+            if (supportedUri == null && !IsConnected)
             {
                 return Array.Empty<Uri>();
             }
 
-            return NpClient.Proxy.GetAllChannelUri();
+            return supportedUri ?? (supportedUri = NpClient.Proxy.GetAllChannelUri());
         }
 
         public override bool IsConnected => NpClient?.IsConnected ?? default;
@@ -128,13 +130,15 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
 
         protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
+
             if (disposing)
             {
                 NpClient?.Dispose();
                 NpClient = null;
             }
 
-            Dispose(disposing);
+            
         }
     }
 }

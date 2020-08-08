@@ -44,11 +44,14 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
 
         public abstract Task ConnectAsync();
 
-        public virtual async Task<bool> IsUriSupportedAsync(Uri uri)
+        bool IChannel.IsUriSupported(Uri uri)
         {
-            await ConnectAsync().ConfigureAwait(false);
+            if (ChannelUri == uri)
+            {
+                return true;
+            }
 
-            foreach(Uri serviceUri in GetAllChannelUri())
+            foreach (Uri serviceUri in GetAllChannelUri())
             {
                 MethodHelper
                     serviceMethod = new MethodHelper(serviceUri.LocalPath),
@@ -60,6 +63,17 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
                 {
                     return true;
                 }
+            }
+            return default;
+        }
+
+        public virtual async Task<bool> IsUriSupportedAsync(Uri uri)
+        {
+            await ConnectAsync().ConfigureAwait(false);
+
+            if (this is IChannel channel)
+            {
+                return channel.IsUriSupported(uri);
             }
             return default;
         }

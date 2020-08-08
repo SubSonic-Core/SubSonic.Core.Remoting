@@ -41,6 +41,12 @@ namespace SubSonic.Core.Remoting.Contracts
         /// <returns></returns>
         [SecurityCritical]
         string Parse(Uri uri, out string method);
+        /// <summary>
+        /// Identify if the Uri is supported by this channel
+        /// </summary>
+        /// <param name="uri">the uri we are checking for</param>
+        /// <returns>true, if this channel supports the uri</returns>
+        bool IsUriSupported(Uri uri);
     }
     
 

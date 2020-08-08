@@ -94,10 +94,85 @@ namespace SubSonic.Core.Remoting.Channels
 
             return success;
         }
+        [SecurityPermission(SecurityAction.Demand, Flags = SecurityPermissionFlag.RemotingConfiguration)]
+        public static bool UnRegisterChannel(Uri serviceUri)
+        {
+            bool
+                lockTaken = false,
+                success = false;
+            try
+            {
+                Monitor.Enter(s_channelLock, ref lockTaken);
+
+                if (s_registeredChannels.Count > 0)
+                {
+                    RegisteredChannel[] channels = new RegisteredChannel[s_registeredChannels.Count];
+
+                    int
+                        index = 0,
+                        offset = 0;
+
+                    while (true)
+                    {
+                        if ((index + offset) < s_registeredChannels.Count && s_registeredChannels[index + offset] is RegisteredChannel channel)
+                        {
+                            if (!channel.Channel.IsUriSupported(serviceUri))
+                            {
+                                channels[index] = channel;
+                                index++;
+                                continue;
+                            }
+
+                            channel.Channel.Dispose();
+                            offset++;
+                            continue;
+                        }
+                        if (offset > 0)
+                        {   // the registered channel list was changed
+                            RegisteredChannel[] _channels = new RegisteredChannel[channels.Length - offset];
+
+                            for (int i = 0, n = channels.Length - offset; i < n; i++)
+                            {
+                                _channels[i] = channels[i];
+                            }
+
+                            s_registeredChannels = new RegisteredChannelList(_channels);
+                        }
+                        break;
+                    }
+
+                    success = offset > 0;
+                }
+            }
+            finally
+            {
+                if (lockTaken)
+                {
+                    Monitor.Exit(s_channelLock);
+                }
+            }
+            return success;
+        }
 
         internal static bool DisconnectInternal(Uri serviceUri)
         {
-            throw new NotImplementedException();
+            for (int i = 0, n = s_registeredChannels.Count; i < n; i++)
+            {
+                if (s_registeredChannels[i] is RegisteredChannel channel)
+                {
+                    if (channel.IsSender &&
+                        channel.Channel is IChannel sender)
+                    {
+                        if (sender.IsUriSupported(serviceUri))
+                        {   
+                            sender.Dispose();
+
+                            return true;
+                        }
+                    }
+                }
+            }
+            return default;
         }
 
         internal static async Task<object> ConnectInternalAsync(Type typeToProxy, Uri uri)

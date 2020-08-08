@@ -97,6 +97,7 @@ namespace SubSonic.Core.Remoting
         }
 
         [Test]
+        [Order(1)]
         public async Task RemotingShouldReturnRemoteProcedureObjectProxy()
         {
             IProcessTransformationRunFactory factory = await RemotingServices.ConnectAsync<IProcessTransformationRunFactory>(new Uri($"ipc://{TransformationRunFactory.TransformationRunFactoryService}/{TransformationRunFactory.TransformationRunFactoryMethod}/{Guid.NewGuid()}"));
@@ -120,12 +121,23 @@ namespace SubSonic.Core.Remoting
         }
 
         [Test]
-        [Order(1000)]
+        [Order(100)]
+        [TestCase("ipc://BeforeTransformationRunFactoryService", false)]
         [TestCase("ipc://TransformationRunFactoryService", true)]
-        [TestCase("ipc://UnknownService", false)]
+        [TestCase("ipc://AfterTransformationRunFactoryService", false)]
         public void CanDisconnectServiceUsingUri(string uri, bool expected)
         {
             RemotingServices.Disconnect(new Uri(uri)).Should().Be(expected);
+        }
+
+        [Test]
+        [Order(1000)]
+        [TestCase("ipc://BeforeTransformationRunFactoryService", false)]
+        [TestCase("ipc://TransformationRunFactoryService", true)]
+        [TestCase("ipc://AfterTransformationRunFactoryService", false)]
+        public void CanUnRegisterServiceUsingUri(string uri, bool expected)
+        {
+            ChannelServices.UnRegisterChannel(new Uri(uri)).Should().Be(expected);
         }
     }
 }

@@ -19,17 +19,13 @@ namespace SubSonic.Core.VisualStudio.Testing.Components
         , ITransformationRunFactoryService
         , IDisposable
     {
-
-        public TransformationRunFactoryService(Uri serviceUri)
-            : base(serviceUri)
-        {
-
-        }
-
         private bool disposedValue;
 
         internal readonly static ConcurrentDictionary<Guid, IProcessTransformationRunFactory> runFactories = new ConcurrentDictionary<Guid, IProcessTransformationRunFactory>();
 
+        public TransformationRunFactoryService(Uri serviceUri)
+            : base(serviceUri) { }
+        
         public IProcessTransformationRunFactory TransformationRunFactory(Guid id)
         {
             IProcessTransformationRunFactory factory = new TransformationRunFactory(id)
@@ -70,7 +66,15 @@ namespace SubSonic.Core.VisualStudio.Testing.Components
             {
                 if (disposing)
                 {
-                    runFactories.Clear();
+                    foreach(var entry in runFactories)
+                    {
+                        if (entry.Value is TransformationRunFactory factory)
+                        {
+                            Shutdown(factory.ID);
+
+                            runFactories.TryRemove(factory.ID, out _);
+                        }
+                    }
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

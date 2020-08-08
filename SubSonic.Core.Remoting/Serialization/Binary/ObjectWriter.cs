@@ -15,7 +15,7 @@ namespace SubSonic.Core.Remoting.Serialization.Binary
         private readonly StreamingContext _context;
         private BinaryFormatterWriter _serWriter;
         private long _topId;
-        private readonly string _topName;
+        private string _topName;
         private readonly FormatterHelper _formatterEnums;
         private readonly SerializationBinder _binder;
         private readonly SerializationObjectInfo _serObjectInfoInit;

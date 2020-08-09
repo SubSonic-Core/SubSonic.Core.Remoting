@@ -96,7 +96,7 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
             }
         }
 
-        public override async Task<object> Invoke(Type typeOfProxy, Uri uri)
+        public override object Invoke(Type typeOfProxy, Uri uri)
         {
             MethodHelper helper = new MethodHelper(uri.LocalPath);
 
@@ -104,7 +104,7 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
             {
                 object[] parameters = new object[method.GetParameters().Length];
 
-                for(int i = 0, n = method.GetParameters().Length; i < n; i++)
+                for (int i = 0, n = method.GetParameters().Length; i < n; i++)
                 {
                     var parameter = method.GetParameters()[i];
 
@@ -126,6 +126,11 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
                 }
             }
             return default;
+        }
+
+        public override async Task<object> InvokeAsync(Type typeOfProxy, Uri uri)
+        {
+            return await Task.Run(() => Invoke(typeOfProxy, uri));
         }
 
         protected override void Dispose(bool disposing)

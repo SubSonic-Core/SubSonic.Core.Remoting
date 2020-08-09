@@ -11,6 +11,6 @@ namespace SubSonic.Core.Remoting.Contracts
 
         Task<bool> IsUriSupportedAsync(Uri uri);
 
-        Task<object> Invoke(Type typeOfProxy, Uri uri);
+        Task<object> InvokeAsync(Type typeOfProxy, Uri uri);
     }
 }

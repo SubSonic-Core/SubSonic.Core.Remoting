@@ -33,6 +33,8 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
 
         public virtual Uri ChannelUri => new Uri($"ipc://{ChannelName}");
 
+        public virtual bool IsSecured { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
         public abstract Uri[] GetAllChannelUri();
 
         public abstract IChannel Initialize();
@@ -78,7 +80,9 @@ namespace SubSonic.Core.Remoting.Channels.Ipc
             return default;
         }
 
-        public abstract Task<object> Invoke(Type typeOfProxy, Uri uri);
+        public abstract object Invoke(Type typeOfProxy, Uri uri);
+
+        public abstract Task<object> InvokeAsync(Type typeOfProxy, Uri uri);
 
         protected virtual void Dispose(bool disposing)
         {

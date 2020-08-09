@@ -186,7 +186,7 @@ namespace SubSonic.Core.Remoting.Channels
                     {
                         if (await sender.IsUriSupportedAsync(uri))
                         {   // the host is what we are looking for.
-                            return await sender.Invoke(typeToProxy, uri);
+                            return await sender.InvokeAsync(typeToProxy, uri);
                         }
                     }
                 }

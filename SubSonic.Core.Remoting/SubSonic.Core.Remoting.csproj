@@ -40,7 +40,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="ServiceWire" Version="5.3.4-preview-0002-ge35aeba7bf" />
+		<PackageReference Include="ServiceWire" Version="5.3.5-preview-0010-gc7f9e6b6cd" />
 		<PackageReference Include="System.Memory" Version="4.5.4" />
 	</ItemGroup>
 

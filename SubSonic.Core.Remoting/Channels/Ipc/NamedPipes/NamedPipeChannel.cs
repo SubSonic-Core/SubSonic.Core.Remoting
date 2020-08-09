@@ -118,7 +118,7 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
                     }
                 }
 
-                object result =  await Task.Run(() => method.Invoke(NpClient.Proxy, parameters));
+                object result = method.Invoke(NpClient.Proxy, parameters);
 
                 if (typeOfProxy.IsAssignableFrom(result.GetType()))
                 {

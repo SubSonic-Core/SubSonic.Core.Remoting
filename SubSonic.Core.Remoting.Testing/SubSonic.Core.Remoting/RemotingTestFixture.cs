@@ -2,8 +2,7 @@
 using NUnit.Framework;
 using ServiceWire.NamedPipes;
 using SubSonic.Core.Remoting.Serialization;
-using SubSonic.Core.Testing;
-using SubSonic.Core.VisualStudio.Testing.Components;
+using SubSonic.Core.Remoting.Testing.Components;
 using System;
 
 namespace SubSonic.Core.Remoting

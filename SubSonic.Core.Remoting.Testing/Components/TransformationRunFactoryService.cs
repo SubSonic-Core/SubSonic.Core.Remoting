@@ -4,14 +4,13 @@ using Mono.VisualStudio.TextTemplating.VSHost;
 using NSubstitute;
 using NUnit.Framework.Constraints;
 using SubSonic.Core.Remoting.Channels.Services;
-using SubSonic.Core.Testing;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using Factory = Mono.VisualStudio.TextTemplating.VSHost.TransformationRunFactory;
 
-namespace SubSonic.Core.VisualStudio.Testing.Components
+namespace SubSonic.Core.Remoting.Testing.Components
 {
     [Serializable]
     public class TransformationRunFactoryService
@@ -25,10 +24,10 @@ namespace SubSonic.Core.VisualStudio.Testing.Components
 
         public TransformationRunFactoryService(Uri serviceUri)
             : base(serviceUri) { }
-        
+
         public IProcessTransformationRunFactory TransformationRunFactory(Guid id)
         {
-            IProcessTransformationRunFactory factory = new TransformationRunFactory(id)
+            IProcessTransformationRunFactory factory = new Factory(id)
             {
                 IsAlive = true
             };
@@ -45,7 +44,7 @@ namespace SubSonic.Core.VisualStudio.Testing.Components
         {
             if (runFactories.TryGetValue(id, out IProcessTransformationRunFactory factory))
             {
-                foreach(var entry in Factory.Runners)
+                foreach (var entry in Factory.Runners)
                 {
                     if (entry.Value is TransformationRunner runner)
                     {
@@ -57,7 +56,7 @@ namespace SubSonic.Core.VisualStudio.Testing.Components
                 }
             }
 
-            return (IsRunning = Factory.Runners.Count > 0);
+            return IsRunning = Factory.Runners.Count > 0;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -66,9 +65,9 @@ namespace SubSonic.Core.VisualStudio.Testing.Components
             {
                 if (disposing)
                 {
-                    foreach(var entry in runFactories)
+                    foreach (var entry in runFactories)
                     {
-                        if (entry.Value is TransformationRunFactory factory)
+                        if (entry.Value is Factory factory)
                         {
                             Shutdown(factory.ID);
 

@@ -365,5 +365,14 @@ namespace SubSonic.Core.Remoting {
                 return ResourceManager.GetString("ThBinaryStreamHasBeenCorrupted", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type &quot;{0}&quot; is not mapped..
+        /// </summary>
+        public static string TypeIsNotMapped {
+            get {
+                return ResourceManager.GetString("TypeIsNotMapped", resourceCulture);
+            }
+        }
     }
 }

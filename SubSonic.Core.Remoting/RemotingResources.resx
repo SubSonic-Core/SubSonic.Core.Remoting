@@ -219,4 +219,7 @@
   <data name="ThBinaryStreamHasBeenCorrupted" xml:space="preserve">
     <value>The binary stream has been corrupted.</value>
   </data>
+  <data name="TypeIsNotMapped" xml:space="preserve">
+    <value>Type "{0}" is not mapped.</value>
+  </data>
 </root>

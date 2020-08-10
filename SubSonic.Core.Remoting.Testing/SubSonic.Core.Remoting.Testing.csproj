@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
-    <PackageReference Include="Mono.TextTemplating" Version="2.2.0-preview-0119-g05d3e71cb1" />
+    <PackageReference Include="Mono.TextTemplating" Version="2.2.0-preview-0120-g00c9231309" />
     <PackageReference Include="NSubstitute" Version="4.2.2" />
     <PackageReference Include="nunit" Version="3.12.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="3.17.0" />

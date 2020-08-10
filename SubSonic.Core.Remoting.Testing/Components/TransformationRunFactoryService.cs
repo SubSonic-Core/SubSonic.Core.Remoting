@@ -58,6 +58,11 @@ namespace SubSonic.Core.Remoting.Testing.Components
             return runFactory.StartTransformation(runnerId);
         }
 
+        public TemplateErrorCollection GetErrors(Guid runnerId)
+        {
+            return runFactory.GetErrors(runnerId);
+        }
+
         public bool Shutdown(Guid id)
         {
             foreach (var entry in RunFactory.Runners)
@@ -102,5 +107,7 @@ namespace SubSonic.Core.Remoting.Testing.Components
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+        
     }
 }

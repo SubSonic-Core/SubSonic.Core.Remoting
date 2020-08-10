@@ -385,6 +385,24 @@ namespace SubSonic.Core.Remoting {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enter {0}.{1}.
+        /// </summary>
+        public static string TraceEnter {
+            get {
+                return ResourceManager.GetString("TraceEnter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exit {0}.{1}.
+        /// </summary>
+        public static string TraceExit {
+            get {
+                return ResourceManager.GetString("TraceExit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Type &quot;{0}&quot; is not mapped..
         /// </summary>
         public static string TypeIsNotMapped {

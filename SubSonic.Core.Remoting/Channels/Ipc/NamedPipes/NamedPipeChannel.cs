@@ -132,9 +132,11 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
             return default;
         }
 
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         public override async Task<object> InvokeAsync(Type typeOfProxy, Uri uri)
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
-            return await Task.Run(() => Invoke(typeOfProxy, uri));
+            return Invoke(typeOfProxy, uri);
         }
 
         protected override void Dispose(bool disposing)

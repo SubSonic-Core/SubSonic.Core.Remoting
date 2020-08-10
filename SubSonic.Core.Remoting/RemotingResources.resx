@@ -225,6 +225,12 @@
   <data name="ThBinaryStreamHasBeenCorrupted" xml:space="preserve">
     <value>The binary stream has been corrupted.</value>
   </data>
+  <data name="TraceEnter" xml:space="preserve">
+    <value>Enter {0}.{1}</value>
+  </data>
+  <data name="TraceExit" xml:space="preserve">
+    <value>Exit {0}.{1}</value>
+  </data>
   <data name="TypeIsNotMapped" xml:space="preserve">
     <value>Type "{0}" is not mapped.</value>
   </data>

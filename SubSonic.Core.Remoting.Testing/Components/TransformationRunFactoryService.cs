@@ -1,13 +1,8 @@
 ﻿using Mono.TextTemplating;
 using Mono.VisualStudio.TextTemplating;
 using Mono.VisualStudio.TextTemplating.VSHost;
-using NSubstitute;
-using NUnit.Framework.Constraints;
 using SubSonic.Core.Remoting.Channels.Services;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 using RunFactory = Mono.VisualStudio.TextTemplating.VSHost.TransformationRunFactory;
 
 namespace SubSonic.Core.Remoting.Testing.Components

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
-using Factory = Mono.VisualStudio.TextTemplating.VSHost.TransformationRunFactory;
+using RunFactory = Mono.VisualStudio.TextTemplating.VSHost.TransformationRunFactory;
 
 namespace SubSonic.Core.Remoting.Testing.Components
 {
@@ -20,43 +20,63 @@ namespace SubSonic.Core.Remoting.Testing.Components
     {
         private bool disposedValue;
 
-        internal readonly static ConcurrentDictionary<Guid, IProcessTransformationRunFactory> runFactories = new ConcurrentDictionary<Guid, IProcessTransformationRunFactory>();
+        [NonSerialized]
+        private IProcessTransformationRunFactory runFactory;
 
         public TransformationRunFactoryService(Uri serviceUri)
-            : base(serviceUri) { }
+            : base(serviceUri) {
+            runFactory ??= new RemoteTransformationRunFactory(Guid.NewGuid());
+        }
 
-        public IProcessTransformationRunFactory TransformationRunFactory(Guid id)
+        public Guid GetFactoryId()
         {
-            IProcessTransformationRunFactory factory = new Factory(id)
-            {
-                IsAlive = true
-            };
+            return runFactory.GetFactoryId();
+        }
 
-            if (runFactories.TryAdd(id, factory))
-            {
-                return factory;
-            }
+        public bool IsRunFactoryAlive()
+        {
+            return runFactory.IsRunFactoryAlive();
+        }
 
-            return default;
+        public IProcessTransformationRunFactory TransformationRunFactory()
+        {
+            throw new InvalidOperationException(RemotingResources.MethodIsStubbedOutForProxyImpersonation);
+        }
+
+        public IProcessTransformationRunner CreateTransformationRunner()
+        {
+            return runFactory.CreateTransformationRunner();
+        }
+
+        public bool DisposeOfRunner(Guid runnerId)
+        {
+            return runFactory.DisposeOfRunner(runnerId); ;
+        }
+
+        public bool PrepareTransformation(Guid runnerId, ParsedTemplate pt, string content, ITextTemplatingEngineHost host, TemplateSettings settings)
+        {
+            return runFactory.PrepareTransformation(runnerId, pt, content, host, settings);
+        }
+
+        public string StartTransformation(Guid runnerId)
+        {
+            return runFactory.StartTransformation(runnerId);
         }
 
         public bool Shutdown(Guid id)
         {
-            if (runFactories.TryGetValue(id, out IProcessTransformationRunFactory factory))
+            foreach (var entry in RunFactory.Runners)
             {
-                foreach (var entry in Factory.Runners)
+                if (entry.Value is TransformationRunner runner)
                 {
-                    if (entry.Value is TransformationRunner runner)
+                    if (id == runner.Factory.ID)
                     {
-                        if (id == runner.Factory.ID)
-                        {
-                            factory.DisposeOfRunner(runner.RunnerId);
-                        }
+                        runFactory.DisposeOfRunner(runner.RunnerId);
                     }
                 }
             }
 
-            return IsRunning = Factory.Runners.Count > 0;
+            return IsRunning = RunFactory.Runners.Count > 0;
         }
 
         protected virtual void Dispose(bool disposing)
@@ -65,15 +85,7 @@ namespace SubSonic.Core.Remoting.Testing.Components
             {
                 if (disposing)
                 {
-                    foreach (var entry in runFactories)
-                    {
-                        if (entry.Value is Factory factory)
-                        {
-                            Shutdown(factory.ID);
-
-                            runFactories.TryRemove(factory.ID, out _);
-                        }
-                    }
+                    Shutdown(GetFactoryId());
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

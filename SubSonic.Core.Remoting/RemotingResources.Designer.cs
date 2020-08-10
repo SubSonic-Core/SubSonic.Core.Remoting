@@ -88,6 +88,15 @@ namespace SubSonic.Core.Remoting {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The entry interface requested is not supported by the service proxy: {0}.
+        /// </summary>
+        public static string EntryInterfaceNotSupportedByProxy {
+            get {
+                return ResourceManager.GetString("EntryInterfaceNotSupportedByProxy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid Cast From {0} To {1}.
         /// </summary>
         public static string InvalidCast {
@@ -102,6 +111,15 @@ namespace SubSonic.Core.Remoting {
         public static string InvalidUrl {
             get {
                 return ResourceManager.GetString("InvalidUrl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Method is not meant to be executed server side..
+        /// </summary>
+        public static string MethodIsStubbedOutForProxyImpersonation {
+            get {
+                return ResourceManager.GetString("MethodIsStubbedOutForProxyImpersonation", resourceCulture);
             }
         }
         

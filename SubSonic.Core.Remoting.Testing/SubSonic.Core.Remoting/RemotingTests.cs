@@ -20,6 +20,24 @@ namespace SubSonic.Core.Remoting
     public class RemotingTests
     {
         [Test]
+        [TestCase(typeof(RemoteTransformationRunner))]
+        public void CanWrapRuntimeTypesWithSerializableWrapper(Type type)
+        {
+            RemoteType remoteType = new RemoteType(type);
+
+            remoteType.GetRuntimeType().Should().BeAssignableTo(type);
+        }
+
+        [Test]
+        [TestCase(typeof(RemoteTransformationRunner))]
+        public async Task CanWrapRuntimeTypesWithSerializableWrapperAsync(Type type)
+        {
+            RemoteType remoteType = new RemoteType(type);
+
+            (await remoteType.GetRuntimeTypeAsync()).Should().BeAssignableTo(type);
+        }
+
+        [Test]
         [TestCase("/TransformationRunFactory/{id}/{name}", "TransformationRunFactory", 2)]
         [TestCase("/TransformationRunFactory/4ae9d716-cdfd-4300-90e0-0f9b8a2ceba2", "TransformationRunFactory", 1)]
         [TestCase("/Dispose", "Dispose", 0)]
@@ -99,22 +117,20 @@ namespace SubSonic.Core.Remoting
         [Order(1)]
         public async Task RemotingShouldReturnRemoteProcedureObjectProxy()
         {
-            IProcessTransformationRunFactory factory = await RemotingServices.ConnectAsync<IProcessTransformationRunFactory>(new Uri($"ipc://{TransformationRunFactory.TransformationRunFactoryService}/{TransformationRunFactory.TransformationRunFactoryMethod}/{Guid.NewGuid()}"));
+            IProcessTransformationRunFactory factory = await RemotingServices.ConnectAsync<IProcessTransformationRunFactory>(new Uri($"ipc://{TransformationRunFactory.TransformationRunFactoryService}/{TransformationRunFactory.TransformationRunFactoryMethod}"));
 
             factory.Should().NotBeNull();
 
             if (factory is IProcessTransformationRunFactory runFactory)
             {
-                runFactory.IsAlive.Should().BeTrue();
+                runFactory.IsRunFactoryAlive().Should().BeTrue();
                 
-                if (runFactory.CreateTransformationRunner(typeof(RemoteTransformationRunner)) is IProcessTransformationRunner runner)
+                if (runFactory.CreateTransformationRunner() is IProcessTransformationRunner runner)
                 {
                     runner.Should().NotBeNull();
                     runner.RunnerId.Should().NotBeEmpty();
 
-                    runFactory.PerformTransformation(runner.RunnerId).Should().Be("// Error Generating Output");
-
-                    runner.Errors.HasErrors.Should().BeTrue();
+                    runFactory.StartTransformation(runner.RunnerId).Should().Be("// Error Generating Output");
                 }
             }
         }

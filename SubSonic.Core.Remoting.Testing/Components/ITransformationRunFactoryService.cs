@@ -5,14 +5,14 @@ using System;
 namespace SubSonic.Core.Remoting.Testing.Components
 {
     public interface ITransformationRunFactoryService
-        : IPipeServices
+        : IProcessTransformationRunFactory
+        , IPipeServices
     {
         /// <summary>
-        /// Starts up a transformation run factory
+        /// Get a transformation run factory
         /// </summary>
-        /// <param name="id">id assigned to the run factory instance</param>
         /// <returns>rpc reference to a transformation run factory</returns>
-        IProcessTransformationRunFactory TransformationRunFactory(Guid id);
+        IProcessTransformationRunFactory TransformationRunFactory();
 
         /// <summary>
         /// implements the ability to shutdown a local hosted service instance

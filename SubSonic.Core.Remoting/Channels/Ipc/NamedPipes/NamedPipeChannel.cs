@@ -118,11 +118,15 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
                     }
                 }
 
-                object result = method.Invoke(NpClient.Proxy, parameters);
+                //object result = method.Invoke(NpClient.Proxy, parameters);
 
-                if (typeOfProxy.IsAssignableFrom(result.GetType()))
+                if (typeOfProxy.IsAssignableFrom(NpClient.Proxy.GetType()))
                 {
-                    return result;
+                    return NpClient.Proxy;
+                }
+                else
+                {
+                    throw new NotSupportedException(RemotingResources.EntryInterfaceNotSupportedByProxy.Format(typeOfProxy.FullName));
                 }
             }
             return default;

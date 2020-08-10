@@ -126,11 +126,17 @@
   <data name="ChannelNameAlreadyRegistered" xml:space="preserve">
     <value>Remoting channel has already been registered: {0}</value>
   </data>
+  <data name="EntryInterfaceNotSupportedByProxy" xml:space="preserve">
+    <value>The entry interface requested is not supported by the service proxy: {0}</value>
+  </data>
   <data name="InvalidCast" xml:space="preserve">
     <value>Invalid Cast From {0} To {1}</value>
   </data>
   <data name="InvalidUrl" xml:space="preserve">
     <value>Invalid url {0}</value>
+  </data>
+  <data name="MethodIsStubbedOutForProxyImpersonation" xml:space="preserve">
+    <value>Method is not meant to be executed server side.</value>
   </data>
   <data name="NotMarkedForSerialization" xml:space="preserve">
     <value>{0} is missing the serialization attribute in {1}.</value>

@@ -1,6 +1,7 @@
 ﻿using Mono.VisualStudio.TextTemplating.VSHost;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Runtime.Loader;
 using System.Text;
 
@@ -13,14 +14,14 @@ namespace SubSonic.Core.Remoting.Testing.Components
         public RemoteTransformationRunner(TransformationRunFactory factory, Guid runnerId)
             : base(factory, runnerId) { }
 
-        protected override AssemblyLoadContext GetLoadContext()
+        public override Assembly LoadFromAssemblyName(AssemblyName assemblyName)
         {
-            return new RemoteAssemblyLoadContext();
+            return Assembly.Load(assemblyName);
         }
 
-        protected override void Unload(AssemblyLoadContext context)
+        protected override void Unload()
         {
-            context.Unload();
+            throw new NotSupportedException();
         }
     }
 }

@@ -13,7 +13,8 @@ namespace SubSonic.Core.Remoting.Serialization
         public ObjectIDGenerator()
             : base()
         {
-            _currentCount = typeof(RuntimeObjcectIDGenerator).GetField(nameof(_currentCount), BindingFlags.NonPublic | BindingFlags.Instance);
+            _currentCount = typeof(RuntimeObjcectIDGenerator).GetField(nameof(_currentCount), BindingFlags.NonPublic | BindingFlags.Instance) ??
+                            typeof(RuntimeObjcectIDGenerator).GetField("m_currentCount", BindingFlags.NonPublic | BindingFlags.Instance);
         }
 
         private static FieldInfo _currentCount;

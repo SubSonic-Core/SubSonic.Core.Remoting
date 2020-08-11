@@ -36,7 +36,7 @@
 		  <PrivateAssets>all</PrivateAssets>
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="ServiceWire" Version="5.3.5-preview-0010-gc7f9e6b6cd" />
+		<PackageReference Include="ServiceWire" Version="5.3.5-preview-0013-g2aeed0953e" />
 		<PackageReference Include="SubSonic.Core.Extensions" Version="1.0.0-preview-0033-g1c8fe012c5" />
 		<PackageReference Include="System.Memory" Version="4.5.4" />
 	</ItemGroup>

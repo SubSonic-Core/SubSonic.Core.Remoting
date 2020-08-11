@@ -53,7 +53,7 @@ namespace SubSonic.Core.Remoting.Testing.Components
             return runFactory.PrepareTransformation(runnerId, pt, content, host, settings);
         }
 
-        public string StartTransformation(Guid runnerId)
+        public ITextTemplatingCallback StartTransformation(Guid runnerId)
         {
             return runFactory.StartTransformation(runnerId);
         }

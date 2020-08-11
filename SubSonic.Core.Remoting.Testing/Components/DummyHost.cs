@@ -37,49 +37,33 @@ namespace Mono.TextTemplating.Tests
 {
 	[Serializable]
 	public class DummyHost 
-		: ITextTemplatingEngineHost
-		, ITextTemplatingSessionHost
+		: ProcessEngineHost
 	{
 		public readonly Dictionary<string, string> Locations = new Dictionary<string, string> ();
 		public readonly Dictionary<string, string> Contents = new Dictionary<string, string> ();
 		public readonly Dictionary<string, object> HostOptions = new Dictionary<string, object> ();
-		List<string> standardAssemblyReferences = new List<string>() { typeof(string).Assembly.Location };
-		List<string> standardImports = new List<string> ();
-        private string extension;
-        private string encodingName;
         public readonly TemplateErrorCollection Errors = new TemplateErrorCollection ();
 		public readonly Dictionary<string, Type> DirectiveProcessors = new Dictionary<string, Type> ();
 		
 		public DummyHost()
         {
-			Session = CreateSession();
         }
 
-		public virtual object GetHostOption (string optionName)
+		public override object GetHostOption (string optionName)
 		{
 			object o;
 			HostOptions.TryGetValue (optionName, out o);
 			return o;
 		}
 		
-		public virtual bool LoadIncludeText (string requestFileName, out string content, out string location)
+		public override bool LoadIncludeText (string requestFileName, out string content, out string location)
 		{
 			content = null;
 			return Locations.TryGetValue (requestFileName, out location)
 				&& Contents.TryGetValue (requestFileName, out content);
 		}
 		
-		public virtual void LogErrors (TemplateErrorCollection errors)
-		{
-			Errors.AddRange (errors);
-		}
-		
-		public virtual AppDomain ProvideTemplatingAppDomain (string content)
-		{
-			return null;
-		}
-		
-		public virtual string ResolveAssemblyReference (string assemblyReference)
+		public override string ResolveAssemblyReference (string assemblyReference)
 		{
 			if (Path.IsPathRooted(assemblyReference))
             {
@@ -88,49 +72,21 @@ namespace Mono.TextTemplating.Tests
 			return assemblyReference;
 		}
 		
-		public virtual Type ResolveDirectiveProcessor (string processorName)
+		public override Type ResolveDirectiveProcessor (string processorName)
 		{
 			Type t;
 			DirectiveProcessors.TryGetValue (processorName, out t);
 			return t;
 		}
 		
-		public virtual string ResolveParameterValue (string directiveId, string processorName, string parameterName)
+		public override string ResolveParameterValue (string directiveId, string processorName, string parameterName)
 		{
 			throw new System.NotImplementedException();
 		}
 		
-		public virtual string ResolvePath (string path)
+		public override string ResolvePath (string path)
 		{
 			return path;
 		}
-		
-		public virtual void SetFileExtension (string extension)
-		{
-			this.extension = extension;
-		}
-		
-		public virtual void SetOutputEncoding (System.Text.Encoding encoding, bool fromOutputDirective)
-		{
-			this.encodingName = encoding.EncodingName;
-		}
-
-        public ITextTemplatingSession CreateSession()
-        {
-			return new TextTemplatingSession();
-        }
-
-        public virtual IList<string> StandardAssemblyReferences {
-			get { return standardAssemblyReferences; }
-		}
-		
-		public virtual IList<string> StandardImports {
-			get { return standardImports; }
-		}
-		
-		public virtual string TemplateFile {
-			get; set;
-		}
-        public ITextTemplatingSession Session { get; set; }
     }
 }

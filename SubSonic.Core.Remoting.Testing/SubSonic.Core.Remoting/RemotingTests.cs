@@ -131,10 +131,6 @@ namespace SubSonic.Core.Remoting
                 {
                     runner.Should().NotBeNull();
                     runner.RunnerId.Should().NotBeEmpty();
-
-                    FluentActions.Invoking(() => runFactory.PrepareTransformation(runner.RunnerId, new Mono.TextTemplating.ParsedTemplate("test"), "content", null, new Mono.TextTemplating.TemplateSettings())).Should().Throw<TargetInvocationException>();
-
-                    runFactory.StartTransformation(runner.RunnerId).Should().Be("// Error Generating Output");
                 }
             }
         }
@@ -153,19 +149,17 @@ namespace SubSonic.Core.Remoting
 
                 runner.Should().NotBeNull();
 
-                string result = factory.StartTransformation(runner.RunnerId);
+                ITextTemplatingCallback result = factory.StartTransformation(runner.RunnerId);
 
-                var errors = factory.GetErrors(runner.RunnerId);
-
-                if (errors.HasErrors)
+                if (result.Errors.HasErrors)
                 {
-                    foreach(TemplateError error in errors)
+                    foreach(TemplateError error in result.Errors)
                     {
                         Console.Out.WriteLine(error.Message);
                     }
                 }
 
-                result.Should().Be(Samples.outcome);
+                result.TemplateOutput.Should().Be(Samples.outcome);
             }
         }
 

@@ -13,6 +13,8 @@ namespace SubSonic.Core.Remoting.Testing.Components
         public RemoteTransformationRunFactory(Guid id)
             : base(id) { }
 
+        internal static RemoteAssemblyLoadContext Context { get; } = new RemoteAssemblyLoadContext();
+
         public override IProcessTransformationRunner CreateTransformationRunner()
         {
             Guid runnerId = Guid.NewGuid();

@@ -1,5 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Mono.TextTemplating;
+using Mono.TextTemplating.Tests;
 using Mono.VisualStudio.TextTemplating;
 using Mono.VisualStudio.TextTemplating.VSHost;
 using NUnit.Framework;
@@ -130,8 +132,40 @@ namespace SubSonic.Core.Remoting
                     runner.Should().NotBeNull();
                     runner.RunnerId.Should().NotBeEmpty();
 
+                    FluentActions.Invoking(() => runFactory.PrepareTransformation(runner.RunnerId, new Mono.TextTemplating.ParsedTemplate("test"), "content", null, new Mono.TextTemplating.TemplateSettings())).Should().Throw<TargetInvocationException>();
+
                     runFactory.StartTransformation(runner.RunnerId).Should().Be("// Error Generating Output");
                 }
+            }
+        }
+
+        [Test]
+        [Order(2)]
+        public async Task RemoteProcedureTestWithDummyHost()
+        {
+            IProcessTransformationRunFactory factory = await RemotingServices.ConnectAsync<IProcessTransformationRunFactory>(new Uri($"ipc://{TransformationRunFactory.TransformationRunFactoryService}/{TransformationRunFactory.TransformationRunFactoryMethod}"));
+
+            IProcessTextTemplatingEngine engine = new TemplatingEngine();
+
+            if (factory?.IsRunFactoryAlive() ?? default)
+            {
+                IProcessTransformationRunner runner = engine.PrepareTransformationRunner(Samples.template, new DummyHost(), factory);
+
+                runner.Should().NotBeNull();
+
+                string result = factory.StartTransformation(runner.RunnerId);
+
+                var errors = factory.GetErrors(runner.RunnerId);
+
+                if (errors.HasErrors)
+                {
+                    foreach(TemplateError error in errors)
+                    {
+                        Console.Out.WriteLine(error.Message);
+                    }
+                }
+
+                result.Should().Be(Samples.outcome);
             }
         }
 

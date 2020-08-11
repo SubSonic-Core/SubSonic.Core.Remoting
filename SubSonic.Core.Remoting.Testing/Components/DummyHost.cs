@@ -1,0 +1,136 @@
+// 
+// IncludeFileProviderHost.cs
+//  
+// Author:
+//       Mikayla Hutchinson <m.j.hutchinson@gmail.com>
+// 
+// Copyright (c) 2009 Novell, Inc. (http://www.novell.com)
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
+
+using System;
+using System.Collections.Generic;
+using System.CodeDom.Compiler;
+using Mono.VisualStudio.TextTemplating;
+using Mono.VisualStudio.TextTemplating.VSHost;
+using NSubstitute.Core;
+using System.IO;
+using System.Runtime.Serialization;
+
+namespace Mono.TextTemplating.Tests
+{
+	[Serializable]
+	public class DummyHost 
+		: ITextTemplatingEngineHost
+		, ITextTemplatingSessionHost
+	{
+		public readonly Dictionary<string, string> Locations = new Dictionary<string, string> ();
+		public readonly Dictionary<string, string> Contents = new Dictionary<string, string> ();
+		public readonly Dictionary<string, object> HostOptions = new Dictionary<string, object> ();
+		List<string> standardAssemblyReferences = new List<string>() { typeof(string).Assembly.Location };
+		List<string> standardImports = new List<string> ();
+        private string extension;
+        private string encodingName;
+        public readonly TemplateErrorCollection Errors = new TemplateErrorCollection ();
+		public readonly Dictionary<string, Type> DirectiveProcessors = new Dictionary<string, Type> ();
+		
+		public DummyHost()
+        {
+			Session = CreateSession();
+        }
+
+		public virtual object GetHostOption (string optionName)
+		{
+			object o;
+			HostOptions.TryGetValue (optionName, out o);
+			return o;
+		}
+		
+		public virtual bool LoadIncludeText (string requestFileName, out string content, out string location)
+		{
+			content = null;
+			return Locations.TryGetValue (requestFileName, out location)
+				&& Contents.TryGetValue (requestFileName, out content);
+		}
+		
+		public virtual void LogErrors (TemplateErrorCollection errors)
+		{
+			Errors.AddRange (errors);
+		}
+		
+		public virtual AppDomain ProvideTemplatingAppDomain (string content)
+		{
+			return null;
+		}
+		
+		public virtual string ResolveAssemblyReference (string assemblyReference)
+		{
+			if (Path.IsPathRooted(assemblyReference))
+            {
+				return assemblyReference;
+            }
+			return assemblyReference;
+		}
+		
+		public virtual Type ResolveDirectiveProcessor (string processorName)
+		{
+			Type t;
+			DirectiveProcessors.TryGetValue (processorName, out t);
+			return t;
+		}
+		
+		public virtual string ResolveParameterValue (string directiveId, string processorName, string parameterName)
+		{
+			throw new System.NotImplementedException();
+		}
+		
+		public virtual string ResolvePath (string path)
+		{
+			return path;
+		}
+		
+		public virtual void SetFileExtension (string extension)
+		{
+			this.extension = extension;
+		}
+		
+		public virtual void SetOutputEncoding (System.Text.Encoding encoding, bool fromOutputDirective)
+		{
+			this.encodingName = encoding.EncodingName;
+		}
+
+        public ITextTemplatingSession CreateSession()
+        {
+			return new TextTemplatingSession();
+        }
+
+        public virtual IList<string> StandardAssemblyReferences {
+			get { return standardAssemblyReferences; }
+		}
+		
+		public virtual IList<string> StandardImports {
+			get { return standardImports; }
+		}
+		
+		public virtual string TemplateFile {
+			get; set;
+		}
+        public ITextTemplatingSession Session { get; set; }
+    }
+}

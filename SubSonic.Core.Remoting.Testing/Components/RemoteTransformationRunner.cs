@@ -12,16 +12,20 @@ namespace SubSonic.Core.Remoting.Testing.Components
         : TransformationRunner
     {
         public RemoteTransformationRunner(TransformationRunFactory factory, Guid runnerId)
-            : base(factory, runnerId) { }
+            : base(factory, runnerId) {
+            RemoteTransformationRunFactory.Context.Resolving += ResolveReferencedAssemblies;
+        }
 
         public override Assembly LoadFromAssemblyName(AssemblyName assemblyName)
         {
-            return Assembly.Load(assemblyName);
+            return RemoteTransformationRunFactory.Context.LoadFromAssemblyName(assemblyName);
         }
 
         protected override void Unload()
         {
-            throw new NotSupportedException();
+            RemoteTransformationRunFactory.Context.Resolving -= ResolveReferencedAssemblies;
+
+            RemoteTransformationRunFactory.Context.Unload();
         }
     }
 }

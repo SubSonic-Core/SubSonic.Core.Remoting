@@ -145,8 +145,18 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
 
             if (disposing)
             {
-                NpClient?.Dispose();
-                NpClient = null;
+                try
+                {   // if the client is in a invalid state this can through
+                    NpClient?.Dispose();
+                }
+                catch (Exception ex)
+                {   // I hope to identify the specific error and catch
+
+                }
+                finally
+                {
+                    NpClient = null;
+                }
             }
 
             

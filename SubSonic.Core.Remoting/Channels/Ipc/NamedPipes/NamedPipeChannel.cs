@@ -5,6 +5,7 @@ using SubSonic.Core.Remoting.Serialization;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -149,8 +150,8 @@ namespace SubSonic.Core.Remoting.Channels.Ipc.NamedPipes
                 {   // if the client is in a invalid state this can through
                     NpClient?.Dispose();
                 }
-                catch (Exception ex)
-                {   // I hope to identify the specific error and catch
+                catch (IOException)
+                {   // swallow this
 
                 }
                 finally

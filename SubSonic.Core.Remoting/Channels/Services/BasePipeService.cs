@@ -18,7 +18,7 @@ namespace SubSonic.Core.Remoting.Channels.Services
             IsRunning = true;
         }
 
-        public bool IsRunning { get; protected set; }
+        public virtual bool IsRunning { get; protected set; }
 
         public Uri[] GetAllChannelUri()
         {

@@ -24,25 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using Mono.VisualStudio.TextTemplating.VSHost;
 using System;
 using System.Collections.Generic;
-using System.CodeDom.Compiler;
-using Mono.VisualStudio.TextTemplating;
-using Mono.VisualStudio.TextTemplating.VSHost;
-using NSubstitute.Core;
 using System.IO;
-using System.Runtime.Serialization;
 
 namespace Mono.TextTemplating.Tests
 {
-	[Serializable]
+    [Serializable]
 	public class DummyHost 
 		: ProcessEngineHost
 	{
 		public readonly Dictionary<string, string> Locations = new Dictionary<string, string> ();
 		public readonly Dictionary<string, string> Contents = new Dictionary<string, string> ();
 		public readonly Dictionary<string, object> HostOptions = new Dictionary<string, object> ();
-        public readonly TemplateErrorCollection Errors = new TemplateErrorCollection ();
 		public readonly Dictionary<string, Type> DirectiveProcessors = new Dictionary<string, Type> ();
 		
 		public DummyHost()
